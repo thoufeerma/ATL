@@ -7,6 +7,18 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { useCartStore } from "@/lib/cartStore";
 
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  sub: string;
+  brand: string;
+  price: number;
+  image: string;
+  capacity: string;
+  accuracy: string;
+}
+
 export default function ProductsPage() {
   const [selectedCat, setSelectedCat] = useState("All");
   const [selectedBrand, setSelectedBrand] = useState("All");
@@ -14,7 +26,7 @@ export default function ProductsPage() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [compare, setCompare] = useState<number[]>([]);
 
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,11 +37,13 @@ export default function ProductsPage() {
         if (data.error) throw new Error(data.error);
         
         // Map WooCommerce products to our UI format
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapped = data.map((p: any) => ({
           id: p.id,
           name: p.name,
           category: p.categories?.[0]?.name || "Uncategorized",
           sub: "Store Item",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           brand: p.attributes?.find((a: any) => a.name === "Brand")?.options?.[0] || "Generic",
           price: parseFloat(p.price || "0"),
           image: p.images?.[0]?.src || "https://placehold.co/600x600/18181b/52525b?text=No+Image",
@@ -81,7 +95,7 @@ export default function ProductsPage() {
           <div className="bg-red-500/10 border border-red-500/20 p-8 rounded-2xl max-w-lg mx-auto text-center mt-10">
             <h2 className="text-xl font-semibold text-red-500 mb-2">Connection Error</h2>
             <p className="text-foreground">{error}</p>
-            <p className="mt-4 text-sm text-muted-foreground">Make sure your `.env.local` keys are correct and you've restarted your dev server.</p>
+            <p className="mt-4 text-sm text-muted-foreground">Make sure your `.env.local` keys are correct and you&apos;ve restarted your dev server.</p>
           </div>
         ) : loading ? (
           <div className="flex flex-col items-center justify-center py-32 text-muted-foreground">
@@ -101,7 +115,7 @@ export default function ProductsPage() {
                   <div className="mb-6">
                     <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-3">Category</h4>
                     <div className="space-y-2">
-                      {categories.map((c: any) => (
+                      {categories.map((c: string) => (
                         <button
                           key={c}
                           onClick={() => setSelectedCat(c)}
@@ -116,7 +130,7 @@ export default function ProductsPage() {
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider mb-3">Brand</h4>
                     <div className="space-y-2">
-                      {brands.map((b: any) => (
+                      {brands.map((b: string) => (
                         <button
                           key={b}
                           onClick={() => setSelectedBrand(b)}

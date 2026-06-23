@@ -5,8 +5,9 @@ export async function GET() {
   try {
     const products = await fetchWooCommerce("products?per_page=20");
     return NextResponse.json(products);
-  } catch (error: any) {
-    console.error("WooCommerce API Error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("WooCommerce API Error:", errorMessage);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
