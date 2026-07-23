@@ -5,64 +5,105 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Search, ChevronDown, Menu, X,
-  Scale, Receipt, Printer, Package, Hash, Tag, Droplets, ShoppingCart
+  Scale, Receipt, Printer, Package, Hash, Tag, Droplets, MoreHorizontal
 } from "lucide-react";
-
-import { useCartStore } from "@/lib/cartStore";
-import CartDrawer from "./CartDrawer";
 
 const megaMenuData = [
   {
     label: "Weighing",
     icon: <Scale className="w-5 h-5" />,
-    href: "/products?cat=weighing",
+    href: "/products?cat=weighing-scale",
     items: [
-      "Retail Scales", "Platform Scales", "Portable Scales",
-      "Jewellery Scales", "Lab & Analytical", "Hospital Scales",
-      "Industrial Scales", "Crane Scales"
+      { label: "Retail Scales", href: "/products?cat=weighing-scale&sub=retail-scales" },
+      { label: "Platform Scales", href: "/products?cat=weighing-scale&sub=platform-scales" },
+      { label: "Portable Scales", href: "/products?cat=weighing-scale&sub=portable-scales" },
+      { label: "Jewellery Scales", href: "/products?cat=weighing-scale&sub=jewellery-scales" },
+      { label: "Lab & Analytical", href: "/products?cat=weighing-scale&sub=lab-analytical-scales" },
+      { label: "Industrial Scales", href: "/products?cat=weighing-scale&sub=industrial-scales" },
     ]
   },
   {
     label: "Billing Solutions",
     icon: <Receipt className="w-5 h-5" />,
-    href: "/products?cat=billing",
+    href: "/products?cat=billing-solutions",
     items: [
-      "Keypad Billing", "Android Touch Billing", "Windows Touch Billing",
-      "POS Printers", "Label Printers", "Barcode Scanners", "Cash Drawers"
+      { label: "Keypad Billing", href: "/products?cat=billing-solutions&sub=keypad-billing-machines" },
+      { label: "Android Touch Billing", href: "/products?cat=billing-solutions&sub=android-touch-billing" },
+      { label: "Windows Touch Billing", href: "/products?cat=billing-solutions&sub=windows-touch-billing" },
+      { label: "POS Printers", href: "/products?cat=billing-solutions&sub=pos-printers" },
+      { label: "Label Printers", href: "/products?cat=billing-solutions&sub=label-printers" },
+      { label: "Barcode Scanners", href: "/products?cat=billing-solutions&sub=barcode-scanners" },
+      { label: "Accessories", href: "/products?cat=billing-solutions&sub=accessories" }
     ]
   },
   {
     label: "Printing Scales",
     icon: <Printer className="w-5 h-5" />,
     href: "/products?cat=printing-scales",
-    items: ["Receipt Printing Keypad", "Receipt Printing Touch", "Label Printing", "AI Scale"]
+    items: [
+      { label: "Receipt Printing Keypad", href: "/products?cat=printing-scales&sub=receipt-printing-keypad" },
+      { label: "Receipt Printing Touch", href: "/products?cat=printing-scales&sub=receipt-printing-touch" },
+      { label: "Label Printing", href: "/products?cat=printing-scales&sub=label-printing" },
+      { label: "AI Scale", href: "/products?cat=printing-scales&sub=ai-scale" }
+    ]
   },
   {
     label: "Counting",
     icon: <Hash className="w-5 h-5" />,
     href: "/products?cat=counting",
-    items: ["Currency Counting", "Value Counting", "Coin Counting", "Accessories"]
+    items: [
+      { label: "Currency Counting", href: "/products?cat=counting&sub=currency-counting" },
+      { label: "Value Counting", href: "/products?cat=counting&sub=value-counting" },
+      { label: "Coin Counting", href: "/products?cat=counting&sub=coin-counting" },
+      { label: "Accessories", href: "/products?cat=counting&sub=accessories" }
+    ]
   },
   {
     label: "Sealing",
     icon: <Package className="w-5 h-5" />,
     href: "/products?cat=sealing",
     items: [
-      "Hand Sealing", "Pedal Sealing", "Band Sealing",
-      "Vacuum Sealing", "Cup Sealing", "Heat Shrinking", "Bag Closer"
+      { label: "Hand Sealing", href: "/products?cat=sealing&sub=hand-sealing" },
+      { label: "Pedal Sealing", href: "/products?cat=sealing&sub=pedal-sealing" },
+      { label: "Band Sealing", href: "/products?cat=sealing&sub=band-sealing" },
+      { label: "Vacuum Sealing", href: "/products?cat=sealing&sub=vacuum-sealing" },
+      { label: "Cup Sealing", href: "/products?cat=sealing&sub=cup-sealing" },
+      { label: "Heat Shrinking", href: "/products?cat=sealing&sub=heat-shrinking" },
+      { label: "Bag Closer", href: "/products?cat=sealing&sub=bag-closer" }
     ]
   },
   {
     label: "Labelling",
     icon: <Tag className="w-5 h-5" />,
     href: "/products?cat=labelling",
-    items: ["Batch Coders", "Inkjet Printers", "Bottle Labelling", "Label Printers"]
+    items: [
+      { label: "Batch Coders", href: "/products?cat=labelling&sub=batch-coders" },
+      { label: "Inkjet Printers", href: "/products?cat=labelling&sub=inkjet-printers" },
+      { label: "Bottle Labelling", href: "/products?cat=labelling&sub=bottle-labelling" },
+      { label: "Label Printers", href: "/products?cat=labelling&sub=label-printers" }
+    ]
   },
   {
     label: "Filling",
     icon: <Droplets className="w-5 h-5" />,
     href: "/products?cat=filling",
-    items: ["Weigh Fillers", "Liquid Fillers", "Paste Fillers", "Milk Fillers", "Automatic Packing"]
+    items: [
+      { label: "Weigh Fillers", href: "/products?cat=filling&sub=weigh-fillers" },
+      { label: "Liquid Fillers", href: "/products?cat=filling&sub=liquid-fillers" },
+      { label: "Paste Fillers", href: "/products?cat=filling&sub=paste-fillers" },
+      { label: "Milk Fillers", href: "/products?cat=filling&sub=milk-fillers" },
+      { label: "Automatic Packing", href: "/products?cat=filling&sub=automatic-packing" }
+    ]
+  },
+  {
+    label: "Others",
+    icon: <MoreHorizontal className="w-5 h-5" />,
+    href: "/products?cat=others",
+    items: [
+      { label: "Locker", href: "/products?cat=others&sub=locker" },
+      { label: "Gold Purity Analyser", href: "/products?cat=others&sub=gold-purity-analyser" },
+      { label: "Token Dispensor", href: "/products?cat=others&sub=token-dispensor" }
+    ]
   },
 ];
 
@@ -74,11 +115,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
-  const getItemsCount = useCartStore(state => state.getTotalItems);
-  const cartCount = getItemsCount();
 
   useEffect(() => {
     setMounted(true);
@@ -176,13 +213,13 @@ export default function Navbar() {
                         </Link>
                         <ul className="space-y-1.5">
                           {cat.items.map(item => (
-                            <li key={item}>
+                            <li key={item.label}>
                               <Link
-                                href={cat.href}
+                                href={item.href}
                                 className="block text-xs text-muted-foreground hover:text-primary transition-colors font-medium py-0.5"
                                 onClick={() => setProductsOpen(false)}
                               >
-                                {item}
+                                {item.label}
                               </Link>
                             </li>
                           ))}
@@ -210,36 +247,10 @@ export default function Navbar() {
               >
                 <Search className="w-5 h-5" />
               </button>
-
-              {/* Cart toggle */}
-              <button
-                onClick={() => setCartOpen(true)}
-                className={`p-2 rounded-full transition-all relative ${solidNav ? "hover:bg-muted text-foreground" : "hover:bg-white/10 text-white"} cursor-pointer`}
-                aria-label="Cart"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {mounted && cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-extrabold rounded-full flex items-center justify-center animate-bounce shadow-md">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
             </div>
 
-            {/* Mobile Actions (Cart + Menu Toggle) */}
+            {/* Mobile Actions (Menu Toggle) */}
             <div className="xl:hidden flex items-center gap-2">
-              <button
-                onClick={() => setCartOpen(true)}
-                className={`p-2 rounded-full transition-all relative ${solidNav ? "text-foreground hover:bg-muted" : "text-white hover:bg-white/10"} cursor-pointer`}
-                aria-label="Cart"
-              >
-                <ShoppingCart className="w-5.5 h-5.5" />
-                {mounted && cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-primary text-white text-[9px] font-extrabold rounded-full flex items-center justify-center shadow-md">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
               <button
                 className={`p-2 rounded-lg transition-colors ${solidNav ? "text-foreground hover:bg-muted" : "text-white hover:bg-white/10"}`}
                 onClick={() => setMobileOpen(o => !o)}
@@ -306,9 +317,6 @@ export default function Navbar() {
           onClick={() => setProductsOpen(false)}
         />
       )}
-
-      {/* Cart Drawer Panel */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

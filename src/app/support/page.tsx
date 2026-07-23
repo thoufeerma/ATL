@@ -4,14 +4,15 @@ import { ChevronRight, LifeBuoy, Phone, MessageSquare, FileText, Video, BookOpen
 import { Button } from "@/components/ui/button";
 
 const supportCards = [
-  { icon: <Phone className="w-7 h-7" />, title: "Customer Care", desc: "Reach our support team for any product queries, complaints, or general assistance.", action: "Call: +91 9000 000 000", color: "bg-blue-50 text-blue-600 border-blue-100" },
-  { icon: <Settings className="w-7 h-7" />, title: "Technical Support", desc: "Expert technical engineers available for troubleshooting and diagnostics.", action: "Email: tech@atl.in", color: "bg-primary/10 text-primary border-primary/20" },
-  { icon: <FileText className="w-7 h-7" />, title: "Service Request", desc: "Submit a service request for repair, calibration, or on-site support visit.", action: "Submit Request", color: "bg-amber-50 text-amber-600 border-amber-100" },
-  { icon: <LifeBuoy className="w-7 h-7" />, title: "Warranty Registration", desc: "Register your ATL product to activate warranty and receive priority support.", action: "Register Product", color: "bg-green-50 text-green-600 border-green-100" },
-  { icon: <BookOpen className="w-7 h-7" />, title: "Documentation Center", desc: "Download product manuals, calibration certificates, and compliance documents.", action: "Browse Docs", color: "bg-purple-50 text-purple-600 border-purple-100" },
-  { icon: <Video className="w-7 h-7" />, title: "Video Tutorials", desc: "Step-by-step video guides for installation, operation, and maintenance.", action: "Watch Videos", color: "bg-rose-50 text-rose-600 border-rose-100" },
-  { icon: <MessageSquare className="w-7 h-7" />, title: "AMC Registration", desc: "Enroll your equipment in our Annual Maintenance Contract for priority coverage.", action: "Enroll in AMC", color: "bg-indigo-50 text-indigo-600 border-indigo-100" },
-  { icon: <HelpCircle className="w-7 h-7" />, title: "FAQ", desc: "Find instant answers to common questions about our products and services.", action: "View FAQs", color: "bg-teal-50 text-teal-600 border-teal-100" }
+  { icon: <Phone className="w-7 h-7" />, title: "Customer Care", desc: "Reach our support team for any product queries, complaints, or general assistance.", action: "Call: +91 9000 000 000", color: "bg-blue-50 text-blue-600 border-blue-100", href: undefined },
+  { icon: <Settings className="w-7 h-7" />, title: "Technical Support", desc: "Expert technical engineers available for troubleshooting and diagnostics.", action: "Email: tech@atl.in", color: "bg-primary/10 text-primary border-primary/20", href: undefined },
+  { icon: <FileText className="w-7 h-7" />, title: "Service Request", desc: "Submit a service request for repair, calibration, or on-site support visit.", action: "Submit Request", color: "bg-amber-50 text-amber-600 border-amber-100", href: undefined },
+  { icon: <LifeBuoy className="w-7 h-7" />, title: "Warranty Registration", desc: "Register your ATL product to activate warranty and receive priority support.", action: "Register Product", color: "bg-green-50 text-green-600 border-green-100", href: undefined },
+  { icon: <BookOpen className="w-7 h-7" />, title: "Documentation Center", desc: "Download product manuals, calibration certificates, and compliance documents.", action: "Browse Docs", color: "bg-purple-50 text-purple-600 border-purple-100", href: undefined },
+  { icon: <Video className="w-7 h-7" />, title: "Video Tutorials", desc: "Step-by-step video guides for installation, operation, and maintenance.", action: "Watch Videos", color: "bg-rose-50 text-rose-600 border-rose-100", href: undefined },
+  { icon: <MessageSquare className="w-7 h-7" />, title: "AMC Registration", desc: "Enroll your equipment in our Annual Maintenance Contract for priority coverage.", action: "Enroll in AMC", color: "bg-indigo-50 text-indigo-600 border-indigo-100", href: undefined },
+  { icon: <HelpCircle className="w-7 h-7" />, title: "FAQ", desc: "Find instant answers to common questions about our products and services.", action: "View FAQs", color: "bg-teal-50 text-teal-600 border-teal-100", href: undefined },
+  { icon: <Settings className="w-7 h-7" />, title: "Engineer Portal", desc: "Access the internal sales and service training portal for engineers.", action: "Engineer Login", color: "bg-zinc-800 text-white border-zinc-700", href: "/engineer/login" }
 ];
 
 const faqs = [
@@ -57,16 +58,28 @@ export default function SupportPage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-20">
-          {supportCards.map((card, i) => (
-            <div key={i} className={`rounded-2xl border p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${card.color}`}>
-              <div className="mb-4">{card.icon}</div>
-              <h3 className="font-bold text-lg mb-2">{card.title}</h3>
-              <p className="text-sm opacity-80 mb-5 font-light">{card.desc}</p>
-              <Button size="sm" variant="outline" className="rounded-full font-bold border-current opacity-80 hover:opacity-100 text-current bg-transparent">
-                {card.action}
-              </Button>
-            </div>
-          ))}
+          {supportCards.map((card, i) => {
+            const CardContent = (
+              <div className={`h-full rounded-2xl border p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${card.color}`}>
+                <div className="mb-4">{card.icon}</div>
+                <h3 className="font-bold text-lg mb-2">{card.title}</h3>
+                <p className="text-sm opacity-80 mb-5 font-light">{card.desc}</p>
+                <Button size="sm" variant="outline" className="rounded-full font-bold border-current opacity-80 hover:opacity-100 text-current bg-transparent">
+                  {card.action}
+                </Button>
+              </div>
+            );
+
+            return card.href ? (
+              <Link href={card.href} key={i} className="block h-full">
+                {CardContent}
+              </Link>
+            ) : (
+              <div key={i} className="block h-full">
+                {CardContent}
+              </div>
+            );
+          })}
         </div>
 
         <div className="max-w-3xl mx-auto">
