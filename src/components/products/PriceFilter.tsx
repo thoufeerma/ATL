@@ -19,14 +19,15 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync inputs when slider changes
-  const handleSliderChange = (newValues: number[]) => {
-    setValues(newValues);
-    setInputMin(newValues[0].toString());
-    setInputMax(newValues[1].toString());
+  const handleSliderChange = (newValues: number | readonly number[]) => {
+    const vals = Array.isArray(newValues) || (newValues as any)?.length !== undefined ? [...(newValues as number[])] : [newValues as number, newValues as number];
+    setValues(vals);
+    setInputMin(vals[0].toString());
+    setInputMax(vals[1].toString());
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
-      applyFilters(newValues[0], newValues[1]);
+      applyFilters(vals[0], vals[1]);
     }, 500);
   };
 

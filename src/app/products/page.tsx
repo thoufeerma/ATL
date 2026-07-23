@@ -90,18 +90,19 @@ export default async function ProductsPage({
   // WC REST API v3 doesn't support multiple different attributes in one query easily (only one `attribute` param is reliably supported).
   // So we filter dynamic attributes locally.
   attributes.forEach(attr => {
-    const activeTermsStr = typeof resolvedParams[attr.slug] === 'string' ? resolvedParams[attr.slug] : undefined;
+    const paramValue = resolvedParams[attr.slug];
+    const activeTermsStr = typeof paramValue === 'string' ? paramValue : undefined;
     if (activeTermsStr) {
       const activeTerms = activeTermsStr.split(",");
       mappedProducts = mappedProducts.filter(p => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const productAttr = p.rawAttributes.find((pa: any) => pa.id === attr.id || pa.name === attr.name);
+        const productAttr = (p as any).rawAttributes?.find((pa: any) => pa.id === attr.id || pa.name === attr.name);
         if (!productAttr) return false;
         // Check if product has at least one of the selected terms
         // options is an array of term names
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return productAttr.options.some((opt: string) => 
-          activeTerms.some(slug => {
+          activeTerms.some((slug: string) => {
             const termObj = attr.terms.find(t => t.slug === slug);
             return termObj && termObj.name === opt;
           })
