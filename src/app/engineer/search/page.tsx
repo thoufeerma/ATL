@@ -51,7 +51,7 @@ export default async function SearchPage({
             <h1 className="text-3xl font-bold text-zinc-900">Search Results</h1>
           </div>
           <p className="text-zinc-500">
-            Showing results for "{q}"
+            Showing results for &quot;{q}&quot;
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default async function SearchPage({
           <div className="bg-white rounded-xl border border-zinc-200 p-12 text-center">
             <h3 className="text-lg font-bold text-zinc-900 mb-2">No results found</h3>
             <p className="text-zinc-500">
-              We couldn't find anything matching "{q}". Try different keywords.
+              We couldn&apos;t find anything matching &quot;{q}&quot;. Try different keywords.
             </p>
           </div>
         ) : (
