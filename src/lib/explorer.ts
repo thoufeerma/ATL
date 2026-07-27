@@ -155,17 +155,10 @@ async function fetchAuth(endpoint: string) {
   });
 
   if (response.status === 401 || response.status === 403) {
-    // Try to clear cookies and redirect
-    try {
-      const cookieStore = await cookies();
-      cookieStore.delete('wp_jwt');
-    } catch {}
-    
-    // We must use dynamic import or require for redirect since we can't easily add it to the top without another tool call,
-    // actually let's just add it to the top using another replace_file_content if needed.
-    // Let's just throw and let the page handle it for now, or use redirect from next/navigation.
-    const { redirect } = await import('next/navigation');
-    redirect('/engineer/login');
+    // We cannot easily delete cookies in a Server Component render phase without throwing.
+    // And if we throw a redirect() here, the try/catch in getAllFolders will swallow it 
+    // and crash Next.js. So we just throw a normal error.
+    throw new Error('Authentication expired or invalid');
   }
 
   if (!response.ok) {
