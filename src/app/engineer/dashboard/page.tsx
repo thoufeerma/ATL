@@ -1,25 +1,21 @@
 import { cookies } from 'next/headers';
-import { getTraining, getLatestTraining } from '@/lib/training';
+import { getRootFolders, getRecentFiles } from '@/lib/explorer';
 import { logoutAction } from '@/app/actions/auth';
 import { Button } from '@/components/ui/button';
-import { LogOut, BookOpen, Wrench, Clock, PlusCircle } from 'lucide-react';
+import { LogOut, Folder, Clock, Search, FolderOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import EngineerCard from '@/components/engineer/EngineerCard';
 import Navbar from '@/components/layout/Navbar';
+import { FolderRow } from '@/components/engineer/explorer/FolderRow';
+import { FileRow } from '@/components/engineer/explorer/FileRow';
 
 export default async function EngineerDashboard() {
   const cookieStore = await cookies();
   const userName = cookieStore.get('wp_user_display_name')?.value || 'Engineer';
 
-  const [allContent, latestUploadsFull] = await Promise.all([
-    getTraining(),
-    getLatestTraining(),
+  const [rootFolders, recentFiles] = await Promise.all([
+    getRootFolders(),
+    getRecentFiles(5),
   ]);
-  
-  const salesCount = allContent.filter(c => c.department.toLowerCase() === 'sales').length;
-  const serviceCount = allContent.filter(c => c.department.toLowerCase() === 'service').length;
-
-  const latestUploads = latestUploadsFull.slice(0, 8);
 
   return (
     <main className="min-h-screen bg-zinc-50">
@@ -45,53 +41,101 @@ export default async function EngineerDashboard() {
       </div>
 
       <div className="container mx-auto px-4 md:px-8 py-12">
-        {/* Quick Access Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          <Link href="/engineer/sales" className="group block">
-            <div className="bg-white rounded-2xl p-8 border border-zinc-200 hover:border-primary hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-center items-center text-center relative overflow-hidden">
-              <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <BookOpen className="w-10 h-10" />
+        
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* Continue Browsing */}
+          <Link href="/engineer/folder" className="group">
+            <div className="bg-white rounded-2xl p-6 border border-zinc-200 hover:border-blue-500 hover:shadow-md transition-all h-full flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <FolderOpen className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900">Continue Browsing</h3>
+                  <p className="text-sm text-zinc-500">Open the file explorer</p>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-zinc-900 mb-3">Sales Training</h2>
-              <div className="text-sm font-bold bg-zinc-100 text-zinc-600 px-3 py-1 rounded-full mb-3">
-                {salesCount} items
-              </div>
-              <p className="text-zinc-500 max-w-md">
-                Access product brochures, pitch guides, and feature demonstrations for the sales team.
-              </p>
+              <ArrowRight className="w-5 h-5 text-zinc-300 group-hover:text-blue-500 transition-colors" />
             </div>
           </Link>
 
-          <Link href="/engineer/service" className="group block">
-            <div className="bg-white rounded-2xl p-8 border border-zinc-200 hover:border-primary hover:shadow-xl transition-all duration-300 h-full flex flex-col justify-center items-center text-center relative overflow-hidden">
-              <div className="w-20 h-20 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Wrench className="w-10 h-10" />
-              </div>
-              <h2 className="text-2xl font-bold text-zinc-900 mb-3">Service Training</h2>
-              <div className="text-sm font-bold bg-zinc-100 text-zinc-600 px-3 py-1 rounded-full mb-3">
-                {serviceCount} items
-              </div>
-              <p className="text-zinc-500 max-w-md">
-                Find installation manuals, repair guides, and technical specifications for service engineers.
-              </p>
+          {/* Quick Search */}
+          <div className="bg-white rounded-2xl p-6 border border-zinc-200 flex flex-col justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <Search className="w-5 h-5 text-zinc-400" />
+              <h3 className="text-lg font-bold text-zinc-900">Quick Search</h3>
             </div>
-          </Link>
+            <form action="/engineer/search" className="relative block">
+              <input 
+                type="text" 
+                name="q"
+                placeholder="Search folders and files..." 
+                className="w-full pl-4 pr-12 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                required
+              />
+              <button type="submit" className="absolute right-3 top-2.5 p-0.5 text-zinc-400 hover:text-blue-500 transition-colors">
+                <Search className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
         </div>
 
-        {/* Latest Uploads */}
-        {latestUploads.length > 0 && (
-          <div className="mb-16">
-            <div className="flex items-center gap-3 mb-6">
-              <Clock className="w-6 h-6 text-zinc-400" />
-              <h2 className="text-2xl font-bold text-zinc-900">Latest Uploads</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Main Column */}
+          <div className="lg:col-span-2 space-y-12">
+            
+            {/* Root Folders */}
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <Folder className="w-5 h-5 text-zinc-400" />
+                <h2 className="text-xl font-bold text-zinc-900">Root Folders</h2>
+              </div>
+              <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                <div className="flex flex-col">
+                  {rootFolders.map(folder => (
+                    <FolderRow key={folder.id} folder={folder} currentPath="/engineer/folder" />
+                  ))}
+                  {rootFolders.length === 0 && (
+                    <div className="p-8 text-center text-zinc-500">No root folders found.</div>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {latestUploads.map(item => (
-                <EngineerCard key={item.id} item={item} />
-              ))}
+
+            {/* Recent Files */}
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <Clock className="w-5 h-5 text-zinc-400" />
+                <h2 className="text-xl font-bold text-zinc-900">Recent Files</h2>
+              </div>
+              <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                <div className="flex flex-col">
+                  {recentFiles.map(file => (
+                    <FileRow key={file.id} file={file} />
+                  ))}
+                  {recentFiles.length === 0 && (
+                    <div className="p-8 text-center text-zinc-500">No recent files found.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Sidebar Column */}
+          <div className="space-y-8">
+            <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-sm">
+              <h3 className="font-bold text-zinc-900 mb-4">Recently Updated</h3>
+              <div className="text-sm text-zinc-500">
+                Tracking recently modified folders and files will appear here.
+              </div>
             </div>
           </div>
-        )}
+
+        </div>
+
       </div>
     </main>
   );

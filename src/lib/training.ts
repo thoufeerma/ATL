@@ -122,30 +122,41 @@ const normalizeTrainingItem = async (
 };
 
 export const getTraining = async (): Promise<TrainingItem[]> => {
-  const [rawItems, deptMap, catMap] = await Promise.all([
-    fetchWordPress('wp/v2/training-content?per_page=100'),
-    getTrainingDepartments(),
-    getTrainingCategories(),
-  ]);
+  try {
+    const [rawItems, deptMap, catMap] = await Promise.all([
+      fetchWordPress('wp/v2/training-content?per_page=100'),
+      getTrainingDepartments(),
+      getTrainingCategories(),
+    ]);
 
-  const normalized = await Promise.all(
-    rawItems.map((item: any) => normalizeTrainingItem(item, deptMap, catMap))
-  );
+    const normalized = await Promise.all(
+      rawItems.map((item: any) => normalizeTrainingItem(item, deptMap, catMap))
+    );
 
-  return normalized;
+    return normalized;
+  } catch (e) {
+    console.error('Failed to fetch training content', e);
+    return [];
+  }
 };
 
 export const getTrainingBySlug = async (slug: string): Promise<TrainingItem | null> => {
-  const rawItems = await fetchWordPress(`wp/v2/training-content?slug=${slug}&per_page=1`);
-  if (!rawItems || rawItems.length === 0) return null;
+  try {
+    const rawItems = await fetchWordPress(`wp/v2/training-content?slug=${slug}&per_page=1`);
+    if (!rawItems || rawItems.length === 0) return null;
 
-  const [deptMap, catMap] = await Promise.all([
-    getTrainingDepartments(),
-    getTrainingCategories(),
-  ]);
+    const [deptMap, catMap] = await Promise.all([
+      getTrainingDepartments(),
+      getTrainingCategories(),
+    ]);
 
-  return normalizeTrainingItem(rawItems[0], deptMap, catMap);
+    return normalizeTrainingItem(rawItems[0], deptMap, catMap);
+  } catch (e) {
+    console.error('Failed to fetch training by slug', e);
+    return null;
+  }
 };
+
 
 export const getTrainingByDepartment = async (departmentName: string): Promise<TrainingItem[]> => {
   const allTraining = await getTraining();
