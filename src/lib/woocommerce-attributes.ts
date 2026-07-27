@@ -20,7 +20,6 @@ export const getWooCommerceAttributes = cache(async (): Promise<WooAttribute[]> 
     // 1. Fetch global attributes
     const attributesRaw = await fetchWooCommerce('products/attributes?per_page=100');
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const attributes: WooAttribute[] = await Promise.all(attributesRaw.map(async (attr: any) => {
       // 2. Fetch terms for each attribute
       // WooCommerce attribute slug usually starts with 'pa_' internally for querying

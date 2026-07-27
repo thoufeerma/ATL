@@ -67,7 +67,6 @@ export default async function ProductsPage({
   }
 
   // 5. Map Products
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mappedProducts: MappedProduct[] = products.map((p: any) => {
     // Extract capacity specifically if needed for UI mapping, else keep generic
     return {
@@ -76,7 +75,6 @@ export default async function ProductsPage({
       category: p.categories?.[0]?.name || "Uncategorized",
       sub: "Store Item",
       // Optional: you can extract a specific attribute if you still want to display it on the card
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       brand: p.attributes?.find((a: any) => a.name.toLowerCase() === "brand")?.options?.[0] || "Generic",
       price: parseFloat(p.price || "0"),
       image: p.images?.[0]?.src || "https://placehold.co/600x600/18181b/52525b?text=No+Image",
@@ -95,12 +93,10 @@ export default async function ProductsPage({
     if (activeTermsStr) {
       const activeTerms = activeTermsStr.split(",");
       mappedProducts = mappedProducts.filter(p => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const productAttr = (p as any).rawAttributes?.find((pa: any) => pa.id === attr.id || pa.name === attr.name);
         if (!productAttr) return false;
         // Check if product has at least one of the selected terms
         // options is an array of term names
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return productAttr.options.some((opt: string) => 
           activeTerms.some((slug: string) => {
             const termObj = attr.terms.find(t => t.slug === slug);
