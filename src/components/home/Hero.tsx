@@ -111,10 +111,10 @@ export default function Hero() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 lg:mt-16 pt-8 border-t border-white/10">
             {[
-              { value: "20+", label: "Years Experience" },
+              { value: "25+", label: "Years Experience" },
               { value: "1,00,000+", label: "Happy Customers" },
               { value: "50+", label: "Global Brands" },
-              { value: "24/7", label: "Service Support" }
+              { value: "Expert", label: "Maintenance" }
             ].map((stat, i) => (
               <div key={i} className="flex flex-col">
                 <div className="text-3xl lg:text-4xl font-extrabold text-white mb-1.5">{stat.value}</div>

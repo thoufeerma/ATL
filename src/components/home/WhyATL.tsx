@@ -15,7 +15,7 @@ export default function WhyATL() {
     {
       icon: <Wrench className="w-8 h-8" />,
       title: "Expert Maintenance",
-      desc: "Certified technicians available 24/7 for repairs and AMC."
+      desc: "Certified technicians available for repairs and AMC."
     },
     {
       icon: <Award className="w-8 h-8" />,
@@ -30,7 +30,7 @@ export default function WhyATL() {
     {
       icon: <ThumbsUp className="w-8 h-8" />,
       title: "Industry Expertise",
-      desc: "Over 20 years of delivering customized B2B solutions."
+      desc: "Over 25 years of delivering customized B2B solutions."
     }
   ];
 

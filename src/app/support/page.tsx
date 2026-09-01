@@ -4,7 +4,7 @@ import { ChevronRight, LifeBuoy, Phone, MessageSquare, FileText, Video, BookOpen
 import { Button } from "@/components/ui/button";
 
 const supportCards = [
-  { icon: <Phone className="w-7 h-7" />, title: "Customer Care", desc: "Reach our support team for any product queries, complaints, or general assistance.", action: "Call: +91 9000 000 000", color: "bg-blue-50 text-blue-600 border-blue-100", href: undefined },
+  { icon: <Phone className="w-7 h-7" />, title: "Customer Care", desc: "Reach our support team for any product queries, complaints, or general assistance.", action: "Call: 0471 2334553", color: "bg-blue-50 text-blue-600 border-blue-100", href: undefined },
   { icon: <Settings className="w-7 h-7" />, title: "Technical Support", desc: "Expert technical engineers available for troubleshooting and diagnostics.", action: "Email: tech@atl.in", color: "bg-primary/10 text-primary border-primary/20", href: undefined },
   { icon: <FileText className="w-7 h-7" />, title: "Service Request", desc: "Submit a service request for repair, calibration, or on-site support visit.", action: "Submit Request", color: "bg-amber-50 text-amber-600 border-amber-100", href: undefined },
   { icon: <LifeBuoy className="w-7 h-7" />, title: "Warranty Registration", desc: "Register your ATL product to activate warranty and receive priority support.", action: "Register Product", color: "bg-green-50 text-green-600 border-green-100", href: undefined },

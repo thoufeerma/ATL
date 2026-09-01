@@ -5,7 +5,7 @@ const categories = [
   {
     title: "Weighing Systems",
     description: "Retail, industrial, lab, crane & jewellery scales.",
-    image: "/images/categories/retail-scales.png",
+    image: "/images/categories/Weighing Systems.png",
     fallback: "https://images.unsplash.com/photo-1594897030264-ab7d87efc473?q=80&w=800",
     link: "/products/weighing",
     count: "13 subcategories"
@@ -13,7 +13,7 @@ const categories = [
   {
     title: "Billing Solutions",
     description: "POS terminals, barcode scanners, receipt printers.",
-    image: "/images/categories/billing-pos.png",
+    image: "/images/categories/Billing Solutions.png",
     fallback: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800",
     link: "/products/billing",
     count: "7 subcategories"
@@ -21,7 +21,7 @@ const categories = [
   {
     title: "Printing Scales",
     description: "Receipt printing, label printing & AI scale solutions.",
-    image: "/images/categories/platform-scales.png",
+    image: "/images/categories/Printing Scales.png",
     fallback: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=800",
     link: "/products/printing-scales",
     count: "5 subcategories"
@@ -29,7 +29,7 @@ const categories = [
   {
     title: "Counting Machines",
     description: "Currency, coin & value counting solutions.",
-    image: "/images/categories/lab-scales.png",
+    image: "/images/categories/Counting Machines.png",
     fallback: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800",
     link: "/products/counting",
     count: "4 subcategories"
@@ -37,7 +37,7 @@ const categories = [
   {
     title: "Sealing Machines",
     description: "Hand, vacuum, band, heat shrink & foil sealers.",
-    image: "/images/categories/vacuum-sealing.png",
+    image: "/images/categories/Sealing Machines.png",
     fallback: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
     link: "/products/sealing",
     count: "10 subcategories"
@@ -45,7 +45,7 @@ const categories = [
   {
     title: "Labelling Systems",
     description: "Batch coders, inkjet printers, bottle labellers.",
-    image: "/images/categories/labelling.png",
+    image: "/images/categories/Labelling Systems.png",
     fallback: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800",
     link: "/products/labelling",
     count: "4 subcategories"
@@ -53,7 +53,7 @@ const categories = [
   {
     title: "Filling Machines",
     description: "Liquid, paste, milk & pneumatic filling systems.",
-    image: "/images/categories/filling.png",
+    image: "/images/categories/Filling Machines.png",
     fallback: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
     link: "/products/filling",
     count: "6 subcategories"
@@ -61,7 +61,7 @@ const categories = [
   {
     title: "Other Products",
     description: "Token dispensers, gold analyzers, locker systems.",
-    image: "/images/categories/other.png",
+    image: "/images/categories/other products.png",
     fallback: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=800",
     link: "/products/other",
     count: "3 subcategories"
@@ -73,7 +73,7 @@ function CategoryCard({ cat }: { cat: typeof categories[0] }) {
     <Link href={cat.link} className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-border shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
       <div className="relative h-52 w-full overflow-hidden bg-muted">
         <img
-          src={cat.fallback}
+          src={cat.image}
           alt={cat.title}
           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
         />

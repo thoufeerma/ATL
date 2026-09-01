@@ -157,18 +157,13 @@ export default function Navbar() {
         <div className="container mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <div className="relative w-12 h-12 flex-shrink-0">
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <div className="relative h-10 md:h-12 flex-shrink-0">
                 <img
                   src="/images/logo.png"
                   alt="Accurate Trade Links Logo"
-                  className="w-full h-full object-contain rounded-xl bg-white p-1 shadow-md"
+                  className="h-full w-auto object-contain"
                 />
-              </div>
-              <div className={`hidden sm:flex flex-col leading-none ${navTextClass} transition-colors`}>
-                <span className="font-extrabold text-sm tracking-widest">ACCURATE</span>
-                <span className="font-extrabold text-sm tracking-widest">TRADE LINKS</span>
               </div>
             </Link>
 

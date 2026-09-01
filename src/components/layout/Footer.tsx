@@ -8,25 +8,27 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
+            <div className="flex items-center mb-5">
               <img
                 src="/images/logo.png"
                 alt="Accurate Trade Links Logo"
-                className="w-12 h-12 object-contain bg-white rounded-xl p-1 shadow-lg"
+                className="h-14 w-auto object-contain"
               />
-              <div>
-                <div className="font-extrabold text-white text-lg leading-none">ACCURATE</div>
-                <div className="font-extrabold text-white text-lg leading-none">TRADE LINKS</div>
-              </div>
             </div>
             <p className="text-sm font-light leading-relaxed mb-6 max-w-xs">
               Kerala&apos;s most trusted provider of precision weighing, billing, packaging, and industrial automation solutions since 2003.
             </p>
             <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><Phone className="w-4 h-4 text-primary flex-shrink-0" /> +91 9000 000 000</div>
-              <div className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><MessageSquare className="w-4 h-4 text-primary flex-shrink-0" /> WhatsApp Support</div>
-              <div className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><Mail className="w-4 h-4 text-primary flex-shrink-0" /> info@accuratetradelinks.com</div>
-              <div className="flex items-center gap-3"><MapPin className="w-4 h-4 text-primary flex-shrink-0" /> Thiruvananthapuram, Kerala – 695001</div>
+              <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
+                <span className="leading-relaxed">
+                  ACCURATE TRADE LINKS<br/>
+                  TC 26/640(3), Future Centre<br/>
+                  Oottukuzhy Road, Trivandrum-1
+                </span>
+              </div>
+              <div className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><Phone className="w-4 h-4 text-primary flex-shrink-0" /> +91 9747541006, 0471 2334553</div>
+              <div className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><Mail className="w-4 h-4 text-primary flex-shrink-0" /> accuratetradelinks@gmail.com</div>
+              <div className="flex items-center gap-3 text-zinc-500 font-mono text-xs mt-2">GST: 32AHJPK1741Q1Z4</div>
             </div>
           </div>
 

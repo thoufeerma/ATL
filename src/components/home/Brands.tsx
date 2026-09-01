@@ -1,6 +1,7 @@
 export default function Brands() {
   const brands = [
-    "CAS", "Citizen", "Epson", "Zebra", "TSC", "Honeywell", "Essae", "Essel"
+    "ATL CASIO", "Scangle", "Yes Weigh", "Essae", "Phoenix", 
+    "Wepsol", "CONTECH", "Maxsell", "Adler", "Mettler Toledo", "CAS", "TSC"
   ];
 
   return (

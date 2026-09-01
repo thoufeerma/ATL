@@ -94,18 +94,19 @@ export default function ContactPage() {
             <div className="bg-secondary text-white rounded-2xl p-6">
               <h3 className="font-extrabold text-lg mb-4">Contact Information</h3>
               <div className="space-y-4 text-sm font-light">
-                <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Phone</div><div className="text-zinc-300">+91 9000 000 000</div></div></div>
-                <div className="flex items-start gap-3"><MessageSquare className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">WhatsApp</div><div className="text-zinc-300">+91 9000 000 000</div></div></div>
-                <div className="flex items-start gap-3"><Mail className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Email</div><div className="text-zinc-300">info@accuratetradelinks.com</div></div></div>
-                <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Address</div><div className="text-zinc-300">ATL Complex, Thiruvananthapuram, Kerala 695001</div></div></div>
+                <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Phone</div><div className="text-zinc-300">+91 9747541006, 0471 2334553</div></div></div>
+                <div className="flex items-start gap-3"><MessageSquare className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">WhatsApp</div><div className="text-zinc-300">+91 9747541006</div></div></div>
+                <div className="flex items-start gap-3"><Mail className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Email</div><div className="text-zinc-300">accuratetradelinks@gmail.com</div></div></div>
+                <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Address</div><div className="text-zinc-300">ACCURATE TRADE LINKS<br/>TC 26/640(3), Future Centre<br/>Oottukuzhy Road, Trivandrum-1</div></div></div>
                 <div className="flex items-start gap-3"><Clock className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Working Hours</div><div className="text-zinc-300">Monday to Saturday: 9AM to 6PM</div></div></div>
+                <div className="flex items-start gap-3 pt-2 text-zinc-500 font-mono text-xs">GST: 32AHJPK1741Q1Z4</div>
               </div>
             </div>
             <div className="bg-green-500 rounded-2xl p-6 text-white text-center">
               <MessageSquare className="w-10 h-10 mx-auto mb-3" />
               <h3 className="font-extrabold text-lg mb-2">WhatsApp Us Now</h3>
               <p className="text-white/80 text-sm mb-4 font-light">Get instant response on WhatsApp during business hours.</p>
-              <a href="https://wa.me/919000000000" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-full bg-white text-green-600 font-bold text-sm hover:bg-green-50 text-center">
+              <a href="https://wa.me/919747541006" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-full bg-white text-green-600 font-bold text-sm hover:bg-green-50 text-center">
                 Open WhatsApp
               </a>
             </div>
