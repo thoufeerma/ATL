@@ -20,7 +20,7 @@ const milestones = [
 ];
 
 const stats = [
-  { icon: <Clock className="w-5 h-5" />, label: "20+ Years", desc: "Industry Experience" },
+  { icon: <Clock className="w-5 h-5" />, label: "25+ Years", desc: "Industry Experience" },
   { icon: <Users className="w-5 h-5" />, label: "100K+", desc: "Customers Served" },
   { icon: <Globe className="w-5 h-5" />, label: "14 Districts", desc: "Kerala Coverage" },
   { icon: <Award className="w-5 h-5" />, label: "50+ Brands", desc: "Authorized Partner" }
@@ -45,7 +45,7 @@ export default function AboutPage() {
           </div>
           <h1 className="text-5xl font-extrabold text-white mb-4">About Accurate Trade Links</h1>
           <p className="text-zinc-300 text-lg font-light max-w-3xl">
-            Over 20 years of delivering precision weighing, billing, and industrial automation solutions to businesses, institutions, and government organisations across Kerala.
+            Over 25 years of delivering precision weighing, billing, and industrial automation solutions to businesses, institutions, and government organisations across Kerala.
           </p>
         </div>
       </div>

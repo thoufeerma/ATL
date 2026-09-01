@@ -52,16 +52,18 @@ export default function Hero() {
 
   return (
     <div className="relative min-h-screen flex items-center bg-[#0a0f1a] overflow-hidden pt-28 pb-20 md:pt-32 md:pb-24 lg:pt-36 lg:pb-28">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0 transition-opacity duration-700">
-        <Image
-          src={slide.image}
-          alt={slide.headline}
-          fill
-          className="object-cover opacity-40"
-          priority
-        />
-      </div>
+      {/* Background Images */}
+      {slides.map((s, i) => (
+        <div key={s.id} className={`absolute inset-0 z-0 transition-opacity duration-1000 ${i === current ? "opacity-100" : "opacity-0"}`}>
+          <Image
+            src={s.image}
+            alt={s.headline}
+            fill
+            className="object-cover opacity-40"
+            priority={i === 0}
+          />
+        </div>
+      ))}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f1a] via-[#0a0f1a]/80 to-transparent z-10" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1a]/60 via-transparent to-transparent z-10" />
 
@@ -92,21 +94,29 @@ export default function Hero() {
 
       <div className="container mx-auto px-6 md:px-16 lg:px-24 xl:px-32 relative z-20">
         <div className="max-w-4xl">
-          
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7.5xl font-extrabold text-white leading-[1.1] mb-4 tracking-tight">
-            {slide.headline} <br />
-            <span className="text-primary">{slide.headline2}</span>
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-300 mb-8 max-w-2xl font-light leading-relaxed">
-            {slide.sub}
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Button asChild size="lg" className="h-14 px-8 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-white gap-2 shadow-xl shadow-primary/30 transition-transform hover:scale-105">
-              <Link href={slide.link}>{slide.cta} <ArrowRight className="w-5 h-5" /></Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-full border-2 border-white/80 text-white hover:bg-white hover:text-zinc-900 gap-2 bg-transparent backdrop-blur-sm transition-transform hover:scale-105">
-              <Link href="/contact"><FileText className="w-5 h-5" /> Request Quote</Link>
-            </Button>
+          <div className="grid [grid-template-areas:'stack']">
+            {slides.map((s, i) => (
+              <div 
+                key={s.id}
+                className={`[grid-area:stack] transition-all duration-1000 ease-in-out transform ${i === current ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+              >
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7.5xl font-extrabold text-white leading-[1.1] mb-4 tracking-tight">
+                  {s.headline} <br />
+                  <span className="text-primary">{s.headline2}</span>
+                </h1>
+                <p className="text-lg md:text-xl text-zinc-300 mb-8 max-w-2xl font-light leading-relaxed">
+                  {s.sub}
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <Button asChild size="lg" className="h-14 px-8 text-lg font-bold rounded-full bg-primary hover:bg-primary/90 text-white gap-2 shadow-xl shadow-primary/30 transition-transform hover:scale-105 pointer-events-auto">
+                    <Link href={s.link}>{s.cta} <ArrowRight className="w-5 h-5" /></Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-full border-2 border-white/80 text-white hover:bg-white hover:text-zinc-900 gap-2 bg-transparent backdrop-blur-sm transition-transform hover:scale-105 pointer-events-auto">
+                    <Link href="/contact"><FileText className="w-5 h-5" /> Request Quote</Link>
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 lg:mt-16 pt-8 border-t border-white/10">
