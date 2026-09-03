@@ -1,145 +1,66 @@
+import { WooCategory } from "./woocommerce-categories";
+
 export interface CategoryNode {
   title: string;
   slug: string;
   children?: CategoryNode[];
 }
 
-export const categoryTree: CategoryNode[] = [
-  {
-    title: "Weighing Scale",
-    slug: "weighing-scale",
-    children: [
-      {
-        title: "Retail Scales",
-        slug: "retail-scales",
-        children: [
-          { title: "Table Top Front &Back Scales", slug: "table-top-front-back-scales" },
-          { title: "Table Top Scale with Pole", slug: "table-top-scale-with-pole" },
-          { title: "Price Computing Scales", slug: "price-computing-scales" }
-        ]
-      },
-      {
-        title: "Portable Scales",
-        slug: "portable-scales",
-        children: [
-          { title: "Portable/Chicken Weighing Scale", slug: "portable-chicken-weighing-scale" }
-        ]
-      },
-      {
-        title: "Platform Scales",
-        slug: "platform-scales",
-        children: [
-          { title: "Platform Weighing Scale", slug: "platform-weighing-scale" },
-          { title: "ATL PF MS", slug: "atl-pf-ms" }
-        ]
-      },
-      {
-        title: "Hanging Scales",
-        slug: "hanging-scales",
-        children: [
-          { title: "Hanging Scales", slug: "hanging-scales" } // Note: Using actual names as slugs for simplicity, if WC has duplicates it might append -1 etc. Assuming exact match for now.
-        ]
-      },
-      {
-        title: "Jewellery Scales",
-        slug: "jewellery-scales",
-        children: [
-          { title: "Jewellery Scales", slug: "jewellery-scales" },
-          { title: "Analytical Balance", slug: "analytical-balance" }
-        ]
-      },
-      {
-        title: "Personal Weighing",
-        slug: "personal-weighing",
-        children: [
-          { title: "Baby Weighing Scale", slug: "baby-weighing-scale" },
-          { title: "Personal Scales", slug: "personal-scales" },
-          { title: "Hanging Scales", slug: "hanging-scales" }
-        ]
-      },
-      {
-        title: "Lab & Analytical Scales",
-        slug: "lab-analytical-scales",
-        children: [
-          { title: "Analytical Balance", slug: "analytical-balance" },
-          { title: "Jewellery Scales", slug: "jewellery-scales" },
-          { title: "Table Top Front &Back Scales", slug: "table-top-front-back-scales" }
-        ]
-      },
-      {
-        title: "Industrial Scales",
-        slug: "industrial-scales",
-        children: [
-          { title: "Table Top Front &Back Scales", slug: "table-top-front-back-scales" },
-          { title: "Platform Weighing Scale", slug: "platform-weighing-scale" }
-        ]
+// Build a nested CategoryNode tree from a flat array of WooCategory items
+export function buildCategoryTree(categories: WooCategory[]): CategoryNode[] {
+  const categoryMap = new Map<number, CategoryNode & { id: number, parentId: number }>();
+  
+  // First pass: create node objects
+  categories.forEach(cat => {
+    // Skip the default "Uncategorized" category usually with slug "uncategorized"
+    if (cat.slug === "uncategorized") return;
+
+    categoryMap.set(cat.id, {
+      id: cat.id,
+      parentId: cat.parent,
+      title: cat.name,
+      slug: cat.slug,
+      children: []
+    });
+  });
+
+  const tree: CategoryNode[] = [];
+
+  // Second pass: build the hierarchy
+  categoryMap.forEach(node => {
+    if (node.parentId === 0) {
+      tree.push(node);
+    } else {
+      const parent = categoryMap.get(node.parentId);
+      if (parent) {
+        if (!parent.children) parent.children = [];
+        parent.children.push(node);
+      } else {
+        // If parent is missing, treat as root (fallback)
+        tree.push(node);
       }
-    ]
-  },
-  {
-    title: "Billing Solutions",
-    slug: "billing-solutions",
-    children: [
-      {
-        title: "Keypad Billing Machines",
-        slug: "keypad-billing-machines",
-        children: [
-          { title: "Billing Machine", slug: "billing-machine" }
-        ]
-      },
-      {
-        title: "Android Touch Billing",
-        slug: "android-touch-billing",
-        children: [
-          { title: "Android Billing Devices", slug: "android-billing-devices" }
-        ]
-      },
-      {
-        title: "Windows Touch Billing",
-        slug: "windows-touch-billing",
-        children: [
-          { title: "Touch POS Systems", slug: "touch-pos-systems" }
-        ]
-      },
-      {
-        title: "POS Printers",
-        slug: "pos-printers",
-        children: [
-          { title: "Thermal Printer", slug: "thermal-printer" },
-          { title: "Android Billing Devices", slug: "android-billing-devices" }
-        ]
-      },
-      {
-        title: "Label Printers",
-        slug: "label-printers",
-        children: [
-          { title: "Label Printer", slug: "label-printer" },
-          { title: "Thermal Printer", slug: "thermal-printer" },
-          { title: "Android Billing Devices", slug: "android-billing-devices" }
-        ]
-      },
-      {
-        title: "Barcode Scanners",
-        slug: "barcode-scanners",
-        children: [
-          { title: "Barcode Scanner", slug: "barcode-scanner" }
-        ]
-      },
-      {
-        title: "Accessories",
-        slug: "accessories",
-        children: [
-          { title: "Cloud", slug: "cloud" },
-          { title: "Cash Drawer", slug: "cash-drawer" },
-          { title: "General", slug: "general" }
-        ]
+    }
+  });
+
+  // Clean up empty children arrays to match the expected interface exactly
+  const cleanEmptyChildren = (nodes: CategoryNode[]) => {
+    nodes.forEach(node => {
+      if (node.children && node.children.length === 0) {
+        delete node.children;
+      } else if (node.children) {
+        cleanEmptyChildren(node.children);
       }
-    ]
-  }
-];
+    });
+  };
+  
+  cleanEmptyChildren(tree);
+
+  return tree;
+}
 
 // Helper to get all descendant slugs for a given slug in the tree
-export function getDescendantSlugs(targetSlug: string): string[] {
+export function getDescendantSlugs(categories: WooCategory[], targetSlug: string): string[] {
+  const tree = buildCategoryTree(categories);
   let foundNode: CategoryNode | null = null;
 
   const findNode = (nodes: CategoryNode[]) => {
@@ -154,7 +75,7 @@ export function getDescendantSlugs(targetSlug: string): string[] {
     }
   };
 
-  findNode(categoryTree);
+  findNode(tree);
 
   if (!foundNode) return [];
 
@@ -170,3 +91,4 @@ export function getDescendantSlugs(targetSlug: string): string[] {
 
   return Array.from(new Set(collectSlugs(foundNode)));
 }
+

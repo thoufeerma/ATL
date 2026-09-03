@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { fetchWooCommerce } from "@/lib/woocommerce";
-import { resolveSlugsToIds } from "@/lib/woocommerce-categories";
+import { getWooCommerceCategories, resolveSlugsToIds } from "@/lib/woocommerce-categories";
 import { getWooCommerceAttributes } from "@/lib/woocommerce-attributes";
-import { categoryTree, getDescendantSlugs } from "@/lib/category-data";
+import { buildCategoryTree, getDescendantSlugs } from "@/lib/category-data";
 import { FilterSidebar } from "@/components/products/FilterSidebar";
 import { ProductGrid, MappedProduct } from "@/components/products/ProductGrid";
 import { FilterProvider } from "@/components/products/FilterProvider";
@@ -26,8 +26,10 @@ export default async function ProductsPage({
   const maxPriceParam = typeof resolvedParams.max_price === 'string' ? resolvedParams.max_price : undefined;
   const sortParam = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined;
 
-  // 1. Fetch Dynamic Attributes
+  // 1. Fetch Dynamic Attributes & Categories
   const attributes = await getWooCommerceAttributes();
+  const wooCategories = await getWooCommerceCategories();
+  const dynamicCategoryTree = buildCategoryTree(wooCategories);
 
   // 2. Resolve Category Filters
   let activeSlug = undefined;
@@ -37,7 +39,7 @@ export default async function ProductsPage({
 
   let wcQuery = "";
   if (activeSlug) {
-    const descendantSlugs = getDescendantSlugs(activeSlug);
+    const descendantSlugs = getDescendantSlugs(wooCategories, activeSlug);
     const slugsToLookup = Array.from(new Set([activeSlug, ...descendantSlugs]));
     const categoryIds = await resolveSlugsToIds(slugsToLookup);
     if (categoryIds.length > 0) {
@@ -142,7 +144,7 @@ export default async function ProductsPage({
             <aside className="hidden lg:block w-72 flex-shrink-0">
               <div className="sticky top-24">
                 <FilterSidebar 
-                  categoryTree={categoryTree} 
+                  categoryTree={dynamicCategoryTree} 
                   attributes={attributes} 
                   priceBounds={{ min: minPrice, max: maxPrice }} 
                 />
@@ -157,7 +159,7 @@ export default async function ProductsPage({
                 {/* Mobile Filter Trigger */}
                 <MobileFilterDrawer>
                   <FilterSidebar 
-                    categoryTree={categoryTree} 
+                    categoryTree={dynamicCategoryTree} 
                     attributes={attributes} 
                     priceBounds={{ min: minPrice, max: maxPrice }} 
                   />

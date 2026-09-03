@@ -2,110 +2,23 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Search, ChevronDown, Menu, X,
   Scale, Receipt, Printer, Package, Hash, Tag, Droplets, MoreHorizontal
 } from "lucide-react";
+import { getNavbarCategoryTree } from "@/actions/categories";
 
-const megaMenuData = [
-  {
-    label: "Weighing",
-    icon: <Scale className="w-5 h-5" />,
-    href: "/products?cat=weighing-scale",
-    items: [
-      { label: "Retail Scales", href: "/products?cat=weighing-scale&sub=retail-scales" },
-      { label: "Platform Scales", href: "/products?cat=weighing-scale&sub=platform-scales" },
-      { label: "Portable Scales", href: "/products?cat=weighing-scale&sub=portable-scales" },
-      { label: "Jewellery Scales", href: "/products?cat=weighing-scale&sub=jewellery-scales" },
-      { label: "Lab & Analytical", href: "/products?cat=weighing-scale&sub=lab-analytical-scales" },
-      { label: "Industrial Scales", href: "/products?cat=weighing-scale&sub=industrial-scales" },
-    ]
-  },
-  {
-    label: "Billing Solutions",
-    icon: <Receipt className="w-5 h-5" />,
-    href: "/products?cat=billing-solutions",
-    items: [
-      { label: "Keypad Billing", href: "/products?cat=billing-solutions&sub=keypad-billing-machines" },
-      { label: "Android Touch Billing", href: "/products?cat=billing-solutions&sub=android-touch-billing" },
-      { label: "Windows Touch Billing", href: "/products?cat=billing-solutions&sub=windows-touch-billing" },
-      { label: "POS Printers", href: "/products?cat=billing-solutions&sub=pos-printers" },
-      { label: "Label Printers", href: "/products?cat=billing-solutions&sub=label-printers" },
-      { label: "Barcode Scanners", href: "/products?cat=billing-solutions&sub=barcode-scanners" },
-      { label: "Accessories", href: "/products?cat=billing-solutions&sub=accessories" }
-    ]
-  },
-  {
-    label: "Printing Scales",
-    icon: <Printer className="w-5 h-5" />,
-    href: "/products?cat=printing-scales",
-    items: [
-      { label: "Receipt Printing Keypad", href: "/products?cat=printing-scales&sub=receipt-printing-keypad" },
-      { label: "Receipt Printing Touch", href: "/products?cat=printing-scales&sub=receipt-printing-touch" },
-      { label: "Label Printing", href: "/products?cat=printing-scales&sub=label-printing" },
-      { label: "AI Scale", href: "/products?cat=printing-scales&sub=ai-scale" }
-    ]
-  },
-  {
-    label: "Counting",
-    icon: <Hash className="w-5 h-5" />,
-    href: "/products?cat=counting",
-    items: [
-      { label: "Currency Counting", href: "/products?cat=counting&sub=currency-counting" },
-      { label: "Value Counting", href: "/products?cat=counting&sub=value-counting" },
-      { label: "Coin Counting", href: "/products?cat=counting&sub=coin-counting" },
-      { label: "Accessories", href: "/products?cat=counting&sub=accessories" }
-    ]
-  },
-  {
-    label: "Sealing",
-    icon: <Package className="w-5 h-5" />,
-    href: "/products?cat=sealing",
-    items: [
-      { label: "Hand Sealing", href: "/products?cat=sealing&sub=hand-sealing" },
-      { label: "Pedal Sealing", href: "/products?cat=sealing&sub=pedal-sealing" },
-      { label: "Band Sealing", href: "/products?cat=sealing&sub=band-sealing" },
-      { label: "Vacuum Sealing", href: "/products?cat=sealing&sub=vacuum-sealing" },
-      { label: "Cup Sealing", href: "/products?cat=sealing&sub=cup-sealing" },
-      { label: "Heat Shrinking", href: "/products?cat=sealing&sub=heat-shrinking" },
-      { label: "Bag Closer", href: "/products?cat=sealing&sub=bag-closer" }
-    ]
-  },
-  {
-    label: "Labelling",
-    icon: <Tag className="w-5 h-5" />,
-    href: "/products?cat=labelling",
-    items: [
-      { label: "Batch Coders", href: "/products?cat=labelling&sub=batch-coders" },
-      { label: "Inkjet Printers", href: "/products?cat=labelling&sub=inkjet-printers" },
-      { label: "Bottle Labelling", href: "/products?cat=labelling&sub=bottle-labelling" },
-      { label: "Label Printers", href: "/products?cat=labelling&sub=label-printers" }
-    ]
-  },
-  {
-    label: "Filling",
-    icon: <Droplets className="w-5 h-5" />,
-    href: "/products?cat=filling",
-    items: [
-      { label: "Weigh Fillers", href: "/products?cat=filling&sub=weigh-fillers" },
-      { label: "Liquid Fillers", href: "/products?cat=filling&sub=liquid-fillers" },
-      { label: "Paste Fillers", href: "/products?cat=filling&sub=paste-fillers" },
-      { label: "Milk Fillers", href: "/products?cat=filling&sub=milk-fillers" },
-      { label: "Automatic Packing", href: "/products?cat=filling&sub=automatic-packing" }
-    ]
-  },
-  {
-    label: "Others",
-    icon: <MoreHorizontal className="w-5 h-5" />,
-    href: "/products?cat=others",
-    items: [
-      { label: "Locker", href: "/products?cat=others&sub=locker" },
-      { label: "Gold Purity Analyser", href: "/products?cat=others&sub=gold-purity-analyser" },
-      { label: "Token Dispensor", href: "/products?cat=others&sub=token-dispensor" }
-    ]
-  },
-];
+function getCategoryIcon(slug: string) {
+  if (slug.includes('weighing')) return <Scale className="w-5 h-5" />;
+  if (slug.includes('billing')) return <Receipt className="w-5 h-5" />;
+  if (slug.includes('printing')) return <Printer className="w-5 h-5" />;
+  if (slug.includes('counting')) return <Hash className="w-5 h-5" />;
+  if (slug.includes('sealing')) return <Package className="w-5 h-5" />;
+  if (slug.includes('labelling')) return <Tag className="w-5 h-5" />;
+  if (slug.includes('filling')) return <Droplets className="w-5 h-5" />;
+  return <MoreHorizontal className="w-5 h-5" />;
+}
 
 // Pages that have a dark hero — navbar starts transparent on these
 const HERO_PAGES = ["/"];
@@ -115,15 +28,36 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [megaMenuData, setMegaMenuData] = useState<any[]>([]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  const router = useRouter();
   const pathname = usePathname();
   const megaRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    async function loadCategories() {
+      try {
+        const tree = await getNavbarCategoryTree();
+        const mappedData = tree.map((cat) => ({
+          label: cat.title,
+          icon: getCategoryIcon(cat.slug),
+          href: `/products?cat=${cat.slug}`,
+          items: (cat.children || []).map((child) => ({
+            label: child.title,
+            href: `/products?cat=${cat.slug}&sub=${child.slug}`
+          }))
+        }));
+        setMegaMenuData(mappedData);
+      } catch (error) {
+        console.error("Failed to load navbar categories", error);
+      }
+    }
+    loadCategories();
+  }, []);
 
   const isHeroPage = HERO_PAGES.includes(pathname);
   // On non-hero pages: always show solid white nav. On hero page: transparent until scroll.
@@ -144,6 +78,15 @@ export default function Navbar() {
   };
   const closeMenu = () => {
     closeTimer.current = setTimeout(() => setProductsOpen(false), 150);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
   };
 
   const navTextClass = solidNav ? "text-foreground" : "text-white";
@@ -260,18 +203,20 @@ export default function Navbar() {
         {/* Search Bar (expanded) */}
         {searchOpen && (
           <div className="border-t border-border bg-white px-4 md:px-8 py-3">
-            <div className="container mx-auto flex items-center gap-3">
+            <form onSubmit={handleSearch} className="container mx-auto flex items-center gap-3">
               <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
               <input
                 autoFocus
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products, categories, brands..."
                 className="flex-1 text-sm font-medium outline-none bg-transparent text-foreground placeholder:text-muted-foreground"
               />
-              <button onClick={() => setSearchOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setSearchOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="w-4 h-4" />
               </button>
-            </div>
+            </form>
           </div>
         )}
 
