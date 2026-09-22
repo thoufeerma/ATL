@@ -193,7 +193,7 @@ export default function Navbar() {
                 href="/engineer/login"
                 className={`text-sm font-semibold border rounded-full px-4 py-1.5 transition-colors ${solidNav ? "border-border hover:bg-muted text-foreground" : "border-white/30 hover:bg-white/10 text-white"}`}
               >
-                Engineer Login
+                Login
               </Link>
             </div>
 
@@ -244,6 +244,7 @@ export default function Navbar() {
                 ["Support", "/support"],
                 ["Blog", "/blog"],
                 ["Contact", "/contact"],
+                ["Login", "/engineer/login"],
               ].map(([label, href]) => (
                 <Link
                   key={label}
