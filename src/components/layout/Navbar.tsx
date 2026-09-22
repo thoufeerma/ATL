@@ -97,7 +97,7 @@ export default function Navbar() {
   return (
     <>
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${navBg}`}>
-        <div className="container mx-auto px-6 md:px-16 lg:px-24 xl:px-32">
+        <div className="container mx-auto px-4 md:px-8 lg:px-12 xl:px-16">
           <div className="flex items-center justify-between h-16">
 
             <Link href="/" className="flex items-center flex-shrink-0">
@@ -111,7 +111,8 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className={`hidden xl:flex items-center gap-6 font-semibold text-[14px] ${navTextClass} transition-colors`}>
+            <div className="hidden xl:flex flex-1 justify-center">
+              <div className={`flex items-center gap-8 font-semibold text-[14px] ${navTextClass} transition-colors`}>
               <Link href="/" className="hover:text-primary transition-colors py-2">Home</Link>
               <Link href="/about" className="hover:text-primary transition-colors py-2">About</Link>
 
@@ -150,7 +151,7 @@ export default function Navbar() {
                           {cat.label}
                         </Link>
                         <ul className="space-y-1.5">
-                          {cat.items.map(item => (
+                          {cat.items.map((item: { label: string; href: string }) => (
                             <li key={item.label}>
                               <Link
                                 href={item.href}
@@ -173,10 +174,11 @@ export default function Navbar() {
               <Link href="/services" className="hover:text-primary transition-colors py-2">Services</Link>
               <Link href="/support" className="hover:text-primary transition-colors py-2">Support</Link>
               <Link href="/blog" className="hover:text-primary transition-colors py-2">Blog</Link>
+              </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="hidden md:flex items-center gap-2 lg:gap-3">
+            <div className="hidden md:flex items-center justify-end gap-4">
               {/* Search toggle */}
               <button
                 onClick={() => setSearchOpen(s => !s)}
@@ -185,6 +187,14 @@ export default function Navbar() {
               >
                 <Search className="w-5 h-5" />
               </button>
+              
+              {/* Engineer Login */}
+              <Link
+                href="/engineer/login"
+                className={`text-sm font-semibold border rounded-full px-4 py-1.5 transition-colors ${solidNav ? "border-border hover:bg-muted text-foreground" : "border-white/30 hover:bg-white/10 text-white"}`}
+              >
+                Engineer Login
+              </Link>
             </div>
 
             {/* Mobile Actions (Menu Toggle) */}
