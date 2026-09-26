@@ -3,7 +3,8 @@ export const getWooCommerceApiUrl = (endpoint: string) => {
   if (!url) {
     throw new Error('NEXT_PUBLIC_WOOCOMMERCE_URL is not defined');
   }
-  return `${url}/wp-json/wc/v3/${endpoint}`;
+  const baseUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+  return `${baseUrl}/wp-json/wc/v3/${endpoint}`;
 };
 
 export const fetchWooCommerce = async (endpoint: string, options: RequestInit = {}) => {

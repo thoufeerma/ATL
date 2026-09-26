@@ -7,7 +7,7 @@ const categories = [
     description: "Retail, industrial, lab, crane & jewellery scales.",
     image: "/images/categories/Weighing Systems.png",
     fallback: "https://images.unsplash.com/photo-1594897030264-ab7d87efc473?q=80&w=800",
-    link: "/products/weighing",
+    link: "/products?cat=weighing-systems",
     count: "13 subcategories"
   },
   {
@@ -15,7 +15,7 @@ const categories = [
     description: "POS terminals, barcode scanners, receipt printers.",
     image: "/images/categories/Billing Solutions.png",
     fallback: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800",
-    link: "/products/billing",
+    link: "/products?cat=billing-solutions",
     count: "7 subcategories"
   },
   {
@@ -23,7 +23,7 @@ const categories = [
     description: "Receipt printing, label printing & AI scale solutions.",
     image: "/images/categories/Printing Scales.png",
     fallback: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=800",
-    link: "/products/printing-scales",
+    link: "/products?cat=printing-scales",
     count: "5 subcategories"
   },
   {
@@ -31,7 +31,7 @@ const categories = [
     description: "Currency, coin & value counting solutions.",
     image: "/images/categories/Counting Machines.png",
     fallback: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800",
-    link: "/products/counting",
+    link: "/products?cat=counting-machines",
     count: "4 subcategories"
   },
   {
@@ -39,7 +39,7 @@ const categories = [
     description: "Hand, vacuum, band, heat shrink & foil sealers.",
     image: "/images/categories/Sealing Machines.png",
     fallback: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
-    link: "/products/sealing",
+    link: "/products?cat=sealing-machines",
     count: "10 subcategories"
   },
   {
@@ -47,7 +47,7 @@ const categories = [
     description: "Batch coders, inkjet printers, bottle labellers.",
     image: "/images/categories/Labelling Systems.png",
     fallback: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800",
-    link: "/products/labelling",
+    link: "/products?cat=labelling-systems",
     count: "4 subcategories"
   },
   {
@@ -55,7 +55,7 @@ const categories = [
     description: "Liquid, paste, milk & pneumatic filling systems.",
     image: "/images/categories/Filling Machines.png",
     fallback: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
-    link: "/products/filling",
+    link: "/products?cat=filling-machines",
     count: "6 subcategories"
   },
   {
@@ -63,7 +63,7 @@ const categories = [
     description: "Token dispensers, gold analyzers, locker systems.",
     image: "/images/categories/other products.png",
     fallback: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=800",
-    link: "/products/other",
+    link: "/products",
     count: "3 subcategories"
   }
 ];
