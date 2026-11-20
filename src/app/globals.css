@@ -50,6 +50,12 @@
   --font-heading: var(--font-heading);
 }
 
+/* Font stacks (files come from @fontsource-variable, imported in layout.tsx) */
+body {
+  --font-sans: "DM Sans Variable", system-ui, sans-serif;
+  --font-heading: "Manrope Variable", system-ui, sans-serif;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #1f2937;

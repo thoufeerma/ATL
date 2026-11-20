@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
-import { Manrope, DM_Sans } from "next/font/google";
+// Self-hosted fonts: the build no longer downloads from Google Fonts, whose
+// "/l/font?kit=" URLs break Turbopack's next/font/google loader on Vercel.
+import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/manrope";
 import "./globals.css";
 import FloatingWhatsApp from "@/components/layout/FloatingWhatsApp";
-
-const manrope = Manrope({
-  variable: "--font-heading",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "Accurate Trade Links (ATL) | Enterprise Solutions",
@@ -28,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dmSans.variable} ${manrope.variable} font-sans antialiased min-h-screen bg-background text-foreground flex flex-col`}
+        className={`font-sans antialiased min-h-screen bg-background text-foreground flex flex-col`}
       >
         {children}
         <FloatingWhatsApp />
