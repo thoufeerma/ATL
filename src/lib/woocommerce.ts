@@ -7,9 +7,14 @@ export const getWooCommerceApiUrl = (endpoint: string) => {
   return `${baseUrl}/wp-json/wc/v3/${endpoint}`;
 };
 
-export const fetchWooCommerce = async (endpoint: string, options: RequestInit = {}) => {
+// WooCommerce responses are cached in Next's data cache for this many seconds, so
+// pages don't wait on WordPress for every visitor. Edits in wp-admin show up on the
+// site within this window.
+export const WOO_REVALIDATE_SECONDS = 300;
+
+const requestWooCommerce = async (endpoint: string, options: RequestInit = {}) => {
   const url = getWooCommerceApiUrl(endpoint);
-  
+
   const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY;
   const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
 
@@ -17,38 +22,51 @@ export const fetchWooCommerce = async (endpoint: string, options: RequestInit = 
     throw new Error('WooCommerce Consumer Key or Secret is missing');
   }
 
-  // Create basic auth header
   const authHeader = `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64')}`;
 
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-    'Authorization': authHeader,
-  };
+  // Cache by default; callers can opt out with { cache: 'no-store' } or their own `next` options.
+  const caching: RequestInit =
+    options.cache || (options as { next?: unknown }).next
+      ? {}
+      : ({ next: { revalidate: WOO_REVALIDATE_SECONDS } } as RequestInit);
 
   const response = await fetch(url, {
+    ...caching,
     ...options,
     headers: {
-      ...defaultHeaders,
+      'Content-Type': 'application/json',
+      'Authorization': authHeader,
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    throw new Error(`WooCommerce API Error: ${response.statusText}`);
+    throw new Error(`WooCommerce API Error (${response.status}): ${response.statusText} [${endpoint.split('?')[0]}]`);
   }
 
+  return response;
+};
+
+export const fetchWooCommerce = async (endpoint: string, options: RequestInit = {}) => {
+  const response = await requestWooCommerce(endpoint, options);
   return response.json();
 };
 
 // Fetches every page of a list endpoint (WooCommerce caps per_page at 100).
+// Reads the total page count from the first response, then loads the rest in parallel.
 export const fetchAllWooCommerce = async (endpoint: string, maxPages = 20): Promise<any[]> => {
   const sep = endpoint.includes('?') ? '&' : '?';
-  const results: any[] = [];
-  for (let page = 1; page <= maxPages; page++) {
-    const batch = await fetchWooCommerce(`${endpoint}${sep}per_page=100&page=${page}`);
-    if (!Array.isArray(batch)) break;
-    results.push(...batch);
-    if (batch.length < 100) break;
-  }
-  return results;
+  const pageUrl = (page: number) => `${endpoint}${sep}per_page=100&page=${page}`;
+
+  const first = await requestWooCommerce(pageUrl(1));
+  const firstBatch = await first.json();
+  if (!Array.isArray(firstBatch)) return [];
+
+  const totalPages = Math.min(Number(first.headers.get('x-wp-totalpages')) || 1, maxPages);
+  if (totalPages <= 1) return firstBatch;
+
+  const rest = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, i) => fetchWooCommerce(pageUrl(i + 2))),
+  );
+  return [firstBatch, ...rest].flatMap((batch) => (Array.isArray(batch) ? batch : []));
 };

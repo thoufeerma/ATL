@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { fetchWooCommerce } from './woocommerce';
+import { fetchAllWooCommerce } from './woocommerce';
 
 export interface WooCategory {
   id: number;
@@ -11,8 +11,9 @@ export interface WooCategory {
 // React cache ensures this is only called once per request on the server
 export const getWooCommerceCategories = cache(async (): Promise<WooCategory[]> => {
   try {
-    // Fetching up to 100 categories. If more are needed, pagination would be required.
-    const categories: WooCategory[] = await fetchWooCommerce('products/categories?per_page=100');
+    // Every page: with more than 100 categories, a single page silently drops some
+    // (and their children then show up as top-level categories).
+    const categories: WooCategory[] = await fetchAllWooCommerce('products/categories?_fields=id,name,slug,parent,count');
     return categories;
   } catch (error) {
     console.error("Failed to fetch WooCommerce categories:", error);

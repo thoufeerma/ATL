@@ -21,6 +21,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
 
   const updateUrl = useCallback((params: URLSearchParams) => {
+    // Any filter/sort change starts again from the first page of results.
+    params.delete("page");
     // We use scroll: false to prevent jumping to the top of the page on filter click
     router.push(`?${params.toString()}`, { scroll: false });
   }, [router]);

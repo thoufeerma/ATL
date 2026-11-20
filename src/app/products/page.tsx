@@ -12,6 +12,10 @@ import { ProductGrid, MappedProduct } from "@/components/products/ProductGrid";
 import { FilterProvider } from "@/components/products/FilterProvider";
 import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
 import { ActiveFiltersGrouped } from "@/components/products/ActiveFiltersGrouped";
+import { ProductPagination } from "@/components/products/ProductPagination";
+
+// Products per page. Rendering the whole catalogue at once made the page over 1 MB.
+const PAGE_SIZE = 24;
 
 type ListedProduct = MappedProduct & { termNames: Record<number, Set<string>> };
 
@@ -41,7 +45,8 @@ export default async function ProductsPage({
     ? decodeEntities(wooCategories.find((c) => c.slug === activeSlug)?.name) || activeSlug
     : null;
 
-  let wcQuery = "status=publish";
+  // Only the fields the listing uses: full product objects (descriptions etc.) are ~10x larger.
+  let wcQuery = "status=publish&_fields=id,name,type,price,regular_price,sale_price,price_html,images,categories,attributes";
   if (activeSlug) {
     const slugsToLookup = Array.from(new Set([activeSlug, ...getDescendantSlugs(wooCategories, activeSlug)]));
     const categoryIds = await resolveSlugsToIds(slugsToLookup);
@@ -129,8 +134,19 @@ export default async function ProductsPage({
     max: prices.length ? Math.ceil(Math.max(...prices) / 1000) * 1000 : 0,
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const mappedProducts: MappedProduct[] = filtered.map(({ termNames, ...rest }) => rest);
+  // 8. Pagination
+  const totalCount = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentPage = Math.min(Math.max(1, Math.floor(Number(str("page")) || 1)), totalPages);
+  const firstIndex = (currentPage - 1) * PAGE_SIZE;
+  const mappedProducts: MappedProduct[] = filtered
+    .slice(firstIndex, firstIndex + PAGE_SIZE)
+    .map(({ termNames, ...rest }) => rest);
+
+  const pageQuery: Record<string, string> = {};
+  Object.entries(resolvedParams).forEach(([k, v]) => {
+    if (typeof v === "string" && k !== "page") pageQuery[k] = v;
+  });
 
   return (
     <FilterProvider>
@@ -187,7 +203,9 @@ export default async function ProductsPage({
                 </MobileFilterDrawer>
 
                 <div className="text-sm text-muted-foreground font-semibold lg:ml-auto">
-                  {mappedProducts.length} {mappedProducts.length === 1 ? "product" : "products"} found
+                  {totalPages > 1
+                    ? `Showing ${firstIndex + 1}–${firstIndex + mappedProducts.length} of ${totalCount} products`
+                    : `${totalCount} ${totalCount === 1 ? "product" : "products"} found`}
                 </div>
               </div>
 
@@ -195,6 +213,8 @@ export default async function ProductsPage({
               <ActiveFiltersGrouped attributes={attributes} categoryLabel={activeCategoryName} />
 
               <ProductGrid products={mappedProducts} />
+
+              <ProductPagination currentPage={currentPage} totalPages={totalPages} query={pageQuery} />
             </div>
           </div>
         </div>
