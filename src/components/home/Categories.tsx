@@ -7,8 +7,8 @@ const categories = [
     description: "Retail, industrial, lab, crane & jewellery scales.",
     image: "/images/categories/Weighing Systems.png",
     fallback: "https://images.unsplash.com/photo-1594897030264-ab7d87efc473?q=80&w=800",
-    link: "/products?cat=weighing-systems",
-    count: "13 subcategories"
+    link: "/products?cat=weighing-scale",
+    count: "11 subcategories"
   },
   {
     title: "Billing Solutions",
@@ -31,7 +31,7 @@ const categories = [
     description: "Currency, coin & value counting solutions.",
     image: "/images/categories/Counting Machines.png",
     fallback: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800",
-    link: "/products?cat=counting-machines",
+    link: "/products?cat=counting",
     count: "4 subcategories"
   },
   {
@@ -39,15 +39,15 @@ const categories = [
     description: "Hand, vacuum, band, heat shrink & foil sealers.",
     image: "/images/categories/Sealing Machines.png",
     fallback: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
-    link: "/products?cat=sealing-machines",
-    count: "10 subcategories"
+    link: "/products?cat=sealing",
+    count: "11 subcategories"
   },
   {
     title: "Labelling Systems",
     description: "Batch coders, inkjet printers, bottle labellers.",
     image: "/images/categories/Labelling Systems.png",
     fallback: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800",
-    link: "/products?cat=labelling-systems",
+    link: "/products?cat=labelling",
     count: "4 subcategories"
   },
   {
@@ -55,7 +55,7 @@ const categories = [
     description: "Liquid, paste, milk & pneumatic filling systems.",
     image: "/images/categories/Filling Machines.png",
     fallback: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
-    link: "/products?cat=filling-machines",
+    link: "/products?cat=filling",
     count: "6 subcategories"
   },
   {
@@ -63,7 +63,7 @@ const categories = [
     description: "Token dispensers, gold analyzers, locker systems.",
     image: "/images/categories/other products.png",
     fallback: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=800",
-    link: "/products",
+    link: "/products?cat=other",
     count: "3 subcategories"
   }
 ];

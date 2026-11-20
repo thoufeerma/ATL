@@ -1,4 +1,6 @@
 import { WooCategory } from "./woocommerce-categories";
+import { getCategoryRank } from "./category-order";
+import { decodeEntities } from "./html";
 
 export interface CategoryNode {
   title: string;
@@ -18,7 +20,7 @@ export function buildCategoryTree(categories: WooCategory[]): CategoryNode[] {
     categoryMap.set(cat.id, {
       id: cat.id,
       parentId: cat.parent,
-      title: cat.name,
+      title: decodeEntities(cat.name),
       slug: cat.slug,
       children: []
     });
@@ -54,6 +56,21 @@ export function buildCategoryTree(categories: WooCategory[]): CategoryNode[] {
   };
   
   cleanEmptyChildren(tree);
+
+  // Sort each level by the configured display order (see category-order.ts),
+  // falling back to alphabetical for anything not configured.
+  const sortLevel = (nodes: CategoryNode[], parentSlug: string) => {
+    nodes.sort((a, b) => {
+      const diff = getCategoryRank(parentSlug, a.slug) - getCategoryRank(parentSlug, b.slug);
+      if (diff !== 0 && !Number.isNaN(diff)) return diff;
+      return a.title.localeCompare(b.title);
+    });
+    nodes.forEach(node => {
+      if (node.children) sortLevel(node.children, node.slug);
+    });
+  };
+
+  sortLevel(tree, "root");
 
   return tree;
 }
