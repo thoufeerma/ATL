@@ -1,11 +1,12 @@
 "use client";
 
 import { MessageSquare } from "lucide-react";
+import { whatsappLink } from "@/lib/contact";
 
 export default function FloatingWhatsApp() {
   return (
     <a
-      href="https://wa.me/919000000000"
+      href={whatsappLink()}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
