@@ -23,11 +23,13 @@ import {
 } from "lucide-react";
 import { decodeEntities } from "@/lib/html";
 import { PHONE_DISPLAY, PHONE_NUMBER, whatsappLink } from "@/lib/contact";
+import { formatINR, getPricing, sortOptions } from "@/lib/product-utils";
 
 export interface RelatedProduct {
   id: number;
   name: string;
   price: number | null;
+  mrp: number | null;
   image: string | null;
   spec: string | null;
 }
@@ -35,24 +37,6 @@ export interface RelatedProduct {
 type Attr = { id?: number; name: string; variation: boolean; options: string[] };
 
 /* ----------------------------- helpers ----------------------------- */
-
-const UNIT_FACTOR: Record<string, number> = { mg: 1e-6, g: 1e-3, gm: 1e-3, kg: 1, t: 1e3, ton: 1e3, tons: 1e3 };
-
-function magnitude(value: string) {
-  const m = value.trim().match(/^([\d.]+)\s*([a-zA-Z]+)?/);
-  if (!m) return NaN;
-  return parseFloat(m[1]) * (UNIT_FACTOR[m[2]?.toLowerCase() ?? ""] ?? 1);
-}
-
-// "15 kg, 20 kg, 3 kg" -> "3 kg, 15 kg, 20 kg" (unit-aware, falls back to natural sort)
-function sortOptions(options: string[]) {
-  return [...options].sort((a, b) => {
-    const x = magnitude(a);
-    const y = magnitude(b);
-    if (!Number.isNaN(x) && !Number.isNaN(y) && x !== y) return x - y;
-    return a.localeCompare(b, undefined, { numeric: true });
-  });
-}
 
 // Resolves an attribute to display text. Options written as "3 kg: 0.1 g" are
 // treated as a lookup keyed by another selected attribute (e.g. accuracy per capacity).
@@ -70,10 +54,6 @@ function resolveAttribute(attr: Attr, selected: Record<string, string>, unresolv
     return unresolvedLabel ?? options.join(" · ");
   }
   return options.join(", ");
-}
-
-function formatINR(value: number) {
-  return `₹${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
 }
 
 function iconFor(text: string): LucideIcon {
@@ -170,6 +150,9 @@ export default function ProductDetailClient({
   const basePrice = Number(selectedVariation?.price ?? product.price) || null;
   const showFrom = !selectedVariation && minPrice !== null && maxPrice !== null && minPrice !== maxPrice;
   const displayPrice = showFrom ? minPrice : basePrice;
+  // MRP (regular price) of whatever is currently priced: the chosen variation, or the product itself
+  const mrpRaw = showFrom ? null : getPricing(selectedVariation ?? product).mrp;
+  const mrp = mrpRaw && displayPrice && mrpRaw > displayPrice ? mrpRaw : null;
 
   /* images */
   const images: string[] = (product.images ?? []).map((img: any) => img.src);
@@ -319,7 +302,19 @@ export default function ProductDetailClient({
                   <span className="font-heading text-4xl font-extrabold text-primary tabular-nums tracking-tight">
                     {formatINR(displayPrice)}
                   </span>
-                  <span className="text-sm text-muted-foreground">Excl. GST</span>
+                  {mrp && (
+                    <span className="text-lg text-muted-foreground tabular-nums">
+                      MRP <s>{formatINR(mrp)}</s>
+                    </span>
+                  )}
+                  <span className="basis-full text-sm text-muted-foreground">
+                    Incl. GST
+                    {mrp && (
+                      <span className="font-semibold text-emerald-700">
+                        {" · "}You save {formatINR(mrp - displayPrice)} ({Math.round(((mrp - displayPrice) / mrp) * 100)}%)
+                      </span>
+                    )}
+                  </span>
                 </>
               ) : (
                 <span className="font-heading text-2xl font-bold text-foreground">Price on request</span>
@@ -533,8 +528,13 @@ export default function ProductDetailClient({
                         {item.name}
                       </h3>
                       {item.spec && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{item.spec}</p>}
-                      <p className="mt-auto pt-3 font-heading text-lg font-extrabold text-primary tabular-nums">
-                        {item.price ? formatINR(item.price) : "Price on request"}
+                      <p className="mt-auto pt-3 flex flex-wrap items-baseline gap-x-2">
+                        <span className="font-heading text-lg font-extrabold text-primary tabular-nums">
+                          {item.price ? formatINR(item.price) : "Price on request"}
+                        </span>
+                        {item.mrp && (
+                          <s className="text-sm text-muted-foreground tabular-nums">{formatINR(item.mrp)}</s>
+                        )}
                       </p>
                     </div>
                   </Link>

@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { useFilterState } from "./FilterProvider";
 
 export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }) {
-  const { setParam, removeParam, getParam } = useFilterState();
+  const { setParams, getParam } = useFilterState();
   const urlMin = getParam("min_price");
   const urlMax = getParam("max_price");
 
@@ -17,6 +17,15 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
   const [inputMax, setInputMax] = useState(defaultMax.toString());
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Follow external URL changes (chip removed, "Clear All", category switch) without
+  // remounting, so the inputs keep focus while the user is typing.
+  useEffect(() => {
+    if (document.activeElement?.closest("[data-price-filter]")) return;
+    setValues([defaultMin, defaultMax]);
+    setInputMin(defaultMin.toString());
+    setInputMax(defaultMax.toString());
+  }, [defaultMin, defaultMax]);
 
   // Sync inputs when slider changes
   const handleSliderChange = (newValues: number | readonly number[]) => {
@@ -53,22 +62,16 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
     }
   };
 
+  // One URL update for both values (two separate updates would overwrite each other).
   const applyFilters = (min: number, max: number) => {
-    if (min > bounds.min) {
-      setParam("min_price", min.toString());
-    } else {
-      removeParam("min_price");
-    }
-
-    if (max < bounds.max) {
-      setParam("max_price", max.toString());
-    } else {
-      removeParam("max_price");
-    }
+    setParams({
+      min_price: min > bounds.min ? min.toString() : null,
+      max_price: max < bounds.max ? max.toString() : null,
+    });
   };
 
   return (
-    <div className="pt-4 border-t border-border">
+    <div className="pt-4 border-t border-border" data-price-filter>
       <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-4">
         Price
       </h4>
@@ -91,6 +94,7 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
             min={bounds.min}
             max={bounds.max}
             value={inputMin}
+            aria-label="Minimum price"
             onChange={(e) => handleInputChange(0, e.target.value)}
             className="w-full px-2 py-1.5 rounded-lg border border-border bg-white text-sm outline-none focus:ring-1 focus:ring-primary/50"
           />
@@ -102,6 +106,7 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
             min={bounds.min}
             max={bounds.max}
             value={inputMax}
+            aria-label="Maximum price"
             onChange={(e) => handleInputChange(1, e.target.value)}
             className="w-full px-2 py-1.5 rounded-lg border border-border bg-white text-sm outline-none focus:ring-1 focus:ring-primary/50"
           />

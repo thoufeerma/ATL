@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ProductCardActions } from "./ProductCardActions";
+import { formatINR } from "@/lib/product-utils";
 
 export interface MappedProduct {
   id: number;
@@ -9,6 +10,7 @@ export interface MappedProduct {
   sub: string;
   brand: string;
   price: number;
+  mrp?: number | null; // regular price, shown struck through when above the selling price
   image: string;
   capacity: string;
   accuracy: string;
@@ -52,9 +54,25 @@ export function ProductGrid({ products }: { products: MappedProduct[] }) {
                 <span>Accuracy: <strong className="text-foreground">{product.accuracy}</strong></span>
               </div>
             )}
-            <div className="flex items-baseline justify-between mb-4">
-              <span className="text-xl font-extrabold text-primary">₹{product.price.toLocaleString("en-IN")}</span>
-              <span className="text-xs text-muted-foreground font-semibold">Excl. GST</span>
+            <div className="mb-4">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-xl font-extrabold text-primary tabular-nums">
+                  {product.price > 0 ? formatINR(product.price) : "Price on request"}
+                </span>
+                {product.mrp && (
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    MRP <s>{formatINR(product.mrp)}</s>
+                  </span>
+                )}
+              </div>
+              {product.price > 0 && (
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Incl. GST
+                  {product.mrp && (
+                    <span className="font-semibold text-emerald-700"> · Save {formatINR(product.mrp - product.price)}</span>
+                  )}
+                </p>
+              )}
             </div>
             <div className="flex flex-col gap-2 mt-4">
               <Button asChild size="sm" variant="outline" className="w-full rounded-full border-primary text-primary hover:bg-primary hover:text-white font-semibold text-sm py-2">

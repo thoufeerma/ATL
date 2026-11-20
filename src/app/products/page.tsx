@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { fetchWooCommerce } from "@/lib/woocommerce";
+import { fetchAllWooCommerce } from "@/lib/woocommerce";
 import { getWooCommerceCategories, resolveSlugsToIds } from "@/lib/woocommerce-categories";
-import { getWooCommerceAttributes } from "@/lib/woocommerce-attributes";
+import { getWooCommerceAttributes, WooAttribute, type FacetCounts } from "@/lib/woocommerce-attributes";
 import { buildCategoryTree, getDescendantSlugs } from "@/lib/category-data";
+import { decodeEntities } from "@/lib/html";
+import { getPricing, normalizeTerm } from "@/lib/product-utils";
 import { FilterSidebar } from "@/components/products/FilterSidebar";
 import { ProductGrid, MappedProduct } from "@/components/products/ProductGrid";
 import { FilterProvider } from "@/components/products/FilterProvider";
 import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
 import { ActiveFiltersGrouped } from "@/components/products/ActiveFiltersGrouped";
+
+type ListedProduct = MappedProduct & { termNames: Record<number, Set<string>> };
 
 export default async function ProductsPage({
   searchParams,
@@ -17,101 +21,116 @@ export default async function ProductsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const resolvedParams = await searchParams;
-  
-  const catParam = typeof resolvedParams.cat === 'string' ? resolvedParams.cat : undefined;
-  const subParam = typeof resolvedParams.sub === 'string' ? resolvedParams.sub : undefined;
-  const childParam = typeof resolvedParams.child === 'string' ? resolvedParams.child : undefined;
-  const searchParam = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined;
-  const minPriceParam = typeof resolvedParams.min_price === 'string' ? resolvedParams.min_price : undefined;
-  const maxPriceParam = typeof resolvedParams.max_price === 'string' ? resolvedParams.max_price : undefined;
-  const sortParam = typeof resolvedParams.sort === 'string' ? resolvedParams.sort : undefined;
+  const str = (k: string) => (typeof resolvedParams[k] === "string" ? (resolvedParams[k] as string) : undefined);
 
-  // 1. Fetch Dynamic Attributes & Categories
-  const attributes = await getWooCommerceAttributes();
-  const wooCategories = await getWooCommerceCategories();
+  const catParam = str("cat");
+  const subParam = str("sub");
+  const childParam = str("child");
+  const searchParam = str("q");
+  const minPriceParam = Number(str("min_price")) || null;
+  const maxPriceParam = Number(str("max_price")) || null;
+  const sortParam = str("sort");
+
+  // 1. Attributes & categories
+  const [attributes, wooCategories] = await Promise.all([getWooCommerceAttributes(), getWooCommerceCategories()]);
   const dynamicCategoryTree = buildCategoryTree(wooCategories);
 
-  // 2. Resolve Category Filters
-  let activeSlug = undefined;
-  if (childParam) activeSlug = childParam;
-  else if (subParam) activeSlug = subParam;
-  else if (catParam) activeSlug = catParam;
+  // 2. Category filter (selected category + all of its descendants)
+  const activeSlug = childParam ?? subParam ?? catParam;
+  const activeCategoryName = activeSlug
+    ? decodeEntities(wooCategories.find((c) => c.slug === activeSlug)?.name) || activeSlug
+    : null;
 
-  let wcQuery = "";
+  let wcQuery = "status=publish";
   if (activeSlug) {
-    const descendantSlugs = getDescendantSlugs(wooCategories, activeSlug);
-    const slugsToLookup = Array.from(new Set([activeSlug, ...descendantSlugs]));
+    const slugsToLookup = Array.from(new Set([activeSlug, ...getDescendantSlugs(wooCategories, activeSlug)]));
     const categoryIds = await resolveSlugsToIds(slugsToLookup);
-    if (categoryIds.length > 0) {
-      wcQuery += `&category=${categoryIds.join(",")}`;
-    }
+    if (categoryIds.length > 0) wcQuery += `&category=${categoryIds.join(",")}`;
   }
-
-  // 3. Construct WC Query (Search, Price, Sort)
   if (searchParam) wcQuery += `&search=${encodeURIComponent(searchParam)}`;
-  if (minPriceParam) wcQuery += `&min_price=${minPriceParam}`;
-  if (maxPriceParam) wcQuery += `&max_price=${maxPriceParam}`;
+  if (sortParam === "price-asc") wcQuery += `&orderby=price&order=asc`;
+  else if (sortParam === "price-desc") wcQuery += `&orderby=price&order=desc`;
+  else if (sortParam === "date-desc") wcQuery += `&orderby=date&order=desc`;
+  else if (sortParam === "title-asc") wcQuery += `&orderby=title&order=asc`;
 
-  if (sortParam) {
-    if (sortParam === "price-asc") wcQuery += `&orderby=price&order=asc`;
-    else if (sortParam === "price-desc") wcQuery += `&orderby=price&order=desc`;
-    else if (sortParam === "date-desc") wcQuery += `&orderby=date&order=desc`;
-    else if (sortParam === "title-asc") wcQuery += `&orderby=title&order=asc`;
-  }
-
-  // 4. Fetch Products
-  let endpoint = `products?per_page=100${wcQuery}`;
-  let products = [];
+  // 3. Fetch every matching product (not just the first 100)
+  let products: any[] = [];
   try {
-    products = await fetchWooCommerce(endpoint);
+    products = await fetchAllWooCommerce(`products?${wcQuery}`);
   } catch (err) {
     console.error("Failed fetching products:", err);
   }
 
-  // 5. Map Products
-  let mappedProducts: MappedProduct[] = products.map((p: any) => {
-    // Extract capacity specifically if needed for UI mapping, else keep generic
+  // 4. Map products, indexing their global-attribute term names for filtering
+  const listed: ListedProduct[] = products.map((p: any) => {
+    const { price, mrp } = getPricing(p);
+    const brandAttr = p.attributes?.find((a: any) => a.name?.toLowerCase() === "brand");
+    const termNames: Record<number, Set<string>> = {};
+    (p.attributes ?? []).forEach((a: any) => {
+      const attr = attributes.find((g) => g.id === a.id || (a.id === 0 && normalizeTerm(g.name) === normalizeTerm(a.name)));
+      if (attr) termNames[attr.id] = new Set((a.options ?? []).map(normalizeTerm));
+    });
     return {
       id: p.id,
-      name: p.name,
-      category: p.categories?.[0]?.name || "Uncategorized",
+      name: decodeEntities(p.name),
+      category: decodeEntities(p.categories?.[0]?.name) || "Uncategorized",
       sub: "Store Item",
-      // Optional: you can extract a specific attribute if you still want to display it on the card
-      brand: p.attributes?.find((a: any) => a.name.toLowerCase() === "brand")?.options?.[0] || "Generic",
-      price: parseFloat(p.price || "0"),
+      brand: decodeEntities(brandAttr?.options?.[0]) || decodeEntities(p.brands?.[0]?.name) || "Generic",
+      price: price ?? 0,
+      mrp,
       image: p.images?.[0]?.src || "https://placehold.co/600x600/18181b/52525b?text=No+Image",
       capacity: "-",
       accuracy: "-",
-      rawAttributes: p.attributes || [] // keep this for local filtering
+      termNames,
     };
   });
 
-  // 6. Local Attribute Filtering
-  // WC REST API v3 doesn't support multiple different attributes in one query easily (only one `attribute` param is reliably supported).
-  // So we filter dynamic attributes locally.
-  attributes.forEach(attr => {
-    const paramValue = resolvedParams[attr.slug];
-    const activeTermsStr = typeof paramValue === 'string' ? paramValue : undefined;
-    if (activeTermsStr) {
-      const activeTerms = activeTermsStr.split(",");
-      mappedProducts = mappedProducts.filter(p => {
-        const productAttr = (p as any).rawAttributes?.find((pa: any) => pa.id === attr.id || pa.name === attr.name);
-        if (!productAttr) return false;
-        // Check if product has at least one of the selected terms
-        // options is an array of term names
-        return productAttr.options.some((opt: string) => 
-          activeTerms.some((slug: string) => {
-            const termObj = attr.terms.find(t => t.slug === slug);
-            return termObj && termObj.name === opt;
-          })
-        );
-      });
-    }
+  // 5. Local filtering: price + attributes (AND across attributes, OR within one)
+  const activeTerms = new Map<WooAttribute, Set<string>>();
+  attributes.forEach((attr) => {
+    const slugs = str(attr.slug)?.split(",").filter(Boolean) ?? [];
+    const names = slugs
+      .map((slug) => attr.terms.find((t) => t.slug === slug)?.name)
+      .filter((n): n is string => !!n)
+      .map(normalizeTerm);
+    if (names.length) activeTerms.set(attr, new Set(names));
   });
 
-  // Calculate dynamic price bounds from catalog (ideally from DB, but derived from fetched here)
-  const maxPrice = mappedProducts.reduce((max, p) => p.price > max ? p.price : max, 50000);
-  const minPrice = 0; // Usually 0
+  const matchesPrice = (p: ListedProduct) =>
+    (minPriceParam === null || p.price >= minPriceParam) && (maxPriceParam === null || p.price <= maxPriceParam);
+
+  const matchesAttr = (p: ListedProduct, attr: WooAttribute, wanted: Set<string>) => {
+    const has = p.termNames[attr.id];
+    return !!has && [...wanted].some((n) => has.has(n));
+  };
+
+  const matchesAll = (p: ListedProduct, skip?: WooAttribute) =>
+    matchesPrice(p) && [...activeTerms].every(([attr, wanted]) => attr === skip || matchesAttr(p, attr, wanted));
+
+  const filtered = listed.filter((p) => matchesAll(p));
+
+  // 6. Facet counts: for each attribute, count products matching every *other* active filter,
+  //    so options show how many results selecting them would give.
+  const facets: FacetCounts = {};
+  attributes.forEach((attr) => {
+    const pool = listed.filter((p) => matchesAll(p, attr));
+    const counts: Record<string, number> = {};
+    attr.terms.forEach((t) => {
+      const n = normalizeTerm(t.name);
+      counts[t.slug] = pool.filter((p) => p.termNames[attr.id]?.has(n)).length;
+    });
+    facets[attr.slug] = counts;
+  });
+
+  // 7. Price bounds from the category/search result set (before price filtering)
+  const prices = listed.map((p) => p.price).filter((n) => n > 0);
+  const priceBounds = {
+    min: 0,
+    max: prices.length ? Math.ceil(Math.max(...prices) / 1000) * 1000 : 0,
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const mappedProducts: MappedProduct[] = filtered.map(({ termNames, ...rest }) => rest);
 
   return (
     <FilterProvider>
@@ -139,14 +158,15 @@ export default async function ProductsPage({
 
         <div className="container mx-auto px-4 md:px-8 py-12">
           <div className="flex flex-col lg:flex-row gap-8">
-            
+
             {/* Desktop Sidebar Filters */}
             <aside className="hidden lg:block w-72 flex-shrink-0">
               <div className="sticky top-24">
-                <FilterSidebar 
-                  categoryTree={dynamicCategoryTree} 
-                  attributes={attributes} 
-                  priceBounds={{ min: minPrice, max: maxPrice }} 
+                <FilterSidebar
+                  categoryTree={dynamicCategoryTree}
+                  attributes={attributes}
+                  facets={facets}
+                  priceBounds={priceBounds}
                 />
               </div>
             </aside>
@@ -155,23 +175,24 @@ export default async function ProductsPage({
             <div className="flex-1">
               {/* Toolbar */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                
+
                 {/* Mobile Filter Trigger */}
                 <MobileFilterDrawer>
-                  <FilterSidebar 
-                    categoryTree={dynamicCategoryTree} 
-                    attributes={attributes} 
-                    priceBounds={{ min: minPrice, max: maxPrice }} 
+                  <FilterSidebar
+                    categoryTree={dynamicCategoryTree}
+                    attributes={attributes}
+                    facets={facets}
+                    priceBounds={priceBounds}
                   />
                 </MobileFilterDrawer>
 
                 <div className="text-sm text-muted-foreground font-semibold lg:ml-auto">
-                  {mappedProducts.length} products found
+                  {mappedProducts.length} {mappedProducts.length === 1 ? "product" : "products"} found
                 </div>
               </div>
 
               {/* Active Filters */}
-              <ActiveFiltersGrouped attributes={attributes} />
+              <ActiveFiltersGrouped attributes={attributes} categoryLabel={activeCategoryName} />
 
               <ProductGrid products={mappedProducts} />
             </div>

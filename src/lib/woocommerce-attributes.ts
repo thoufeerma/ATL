@@ -1,5 +1,7 @@
 import { cache } from 'react';
-import { fetchWooCommerce } from './woocommerce';
+import { fetchWooCommerce, fetchAllWooCommerce } from './woocommerce';
+import { decodeEntities } from './html';
+import { compareMeasure } from './product-utils';
 
 export interface WooAttributeTerm {
   id: number;
@@ -31,21 +33,21 @@ export const getWooCommerceAttributes = cache(async (): Promise<WooAttribute[]> 
       
       let terms = [];
       try {
-        terms = await fetchWooCommerce(`products/attributes/${attr.id}/terms?per_page=100&hide_empty=true`);
+        terms = await fetchAllWooCommerce(`products/attributes/${attr.id}/terms?hide_empty=true`);
       } catch (err) {
         console.error(`Failed to fetch terms for attribute ${attr.id}`, err);
       }
       
       return {
         id: attr.id,
-        name: attr.name,
+        name: decodeEntities(attr.name),
         slug: querySlug, // We use the query slug (with pa_ prefix) for URL param handling
         terms: terms.map((t: any) => ({
           id: t.id,
-          name: t.name,
+          name: decodeEntities(t.name),
           slug: t.slug,
           count: t.count
-        }))
+        })).sort((a: WooAttributeTerm, b: WooAttributeTerm) => compareMeasure(a.name, b.name))
       };
     }));
 
@@ -55,3 +57,6 @@ export const getWooCommerceAttributes = cache(async (): Promise<WooAttribute[]> 
     return [];
   }
 });
+
+// attribute slug -> term slug -> number of products in the current results
+export type FacetCounts = Record<string, Record<string, number>>;

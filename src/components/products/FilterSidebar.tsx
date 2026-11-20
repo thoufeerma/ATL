@@ -10,14 +10,17 @@ import { PriceFilter } from "./PriceFilter";
 import { SearchFilter } from "./SearchFilter";
 
 import { SortFilter } from "./SortFilter";
+import type { FacetCounts } from "@/lib/woocommerce-attributes";
 
 export function FilterSidebar({ 
   categoryTree, 
   attributes, 
+  facets,
   priceBounds 
 }: { 
   categoryTree: CategoryNode[];
   attributes: WooAttribute[];
+  facets?: FacetCounts;
   priceBounds: { min: number; max: number };
 }) {
   const { getParam, setParam, removeParam, setParams } = useFilterState();
@@ -207,12 +210,12 @@ export function FilterSidebar({
 
       {/* 3. Dynamic Attribute Filters (Brand, Capacity, etc.) */}
       {attributes.map(attr => (
-        <GenericAttributeFilter key={attr.id} attribute={attr} />
+        <GenericAttributeFilter key={attr.id} attribute={attr} counts={facets?.[attr.slug]} />
       ))}
 
       {/* 4. Price Filter */}
       {priceBounds.min < priceBounds.max && (
-        <PriceFilter bounds={priceBounds} />
+        <PriceFilter key={`${priceBounds.min}-${priceBounds.max}`} bounds={priceBounds} />
       )}
 
       {/* 5. Sort Filter */}

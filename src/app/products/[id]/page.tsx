@@ -2,6 +2,7 @@ import Navbar from "@/components/layout/Navbar";
 import ProductDetailClient, { type RelatedProduct } from "./ProductDetailClient";
 import { fetchWooCommerce } from "@/lib/woocommerce";
 import { decodeEntities } from "@/lib/html";
+import { getPricing } from "@/lib/product-utils";
 
 function extractSpecs(metaData: any[] = []) {
   const specMeta = metaData.find((m: any) => m.key === "technical_specifications");
@@ -30,7 +31,7 @@ async function getRelatedProducts(product: any): Promise<RelatedProduct[]> {
       return {
         id: p.id,
         name: decodeEntities(p.name),
-        price: p.price ? Number(p.price) : null,
+        ...getPricing(p),
         image: p.images?.[0]?.src ?? null,
         spec: capacity ? capacity.options.map(decodeEntities).join(" / ") : null,
       };

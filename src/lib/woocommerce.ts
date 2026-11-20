@@ -39,3 +39,16 @@ export const fetchWooCommerce = async (endpoint: string, options: RequestInit = 
 
   return response.json();
 };
+
+// Fetches every page of a list endpoint (WooCommerce caps per_page at 100).
+export const fetchAllWooCommerce = async (endpoint: string, maxPages = 20): Promise<any[]> => {
+  const sep = endpoint.includes('?') ? '&' : '?';
+  const results: any[] = [];
+  for (let page = 1; page <= maxPages; page++) {
+    const batch = await fetchWooCommerce(`${endpoint}${sep}per_page=100&page=${page}`);
+    if (!Array.isArray(batch)) break;
+    results.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return results;
+};

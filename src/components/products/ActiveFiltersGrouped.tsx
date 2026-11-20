@@ -4,10 +4,11 @@ import { useSearchParams } from "next/navigation";
 import { useFilterState } from "./FilterProvider";
 import { X } from "lucide-react";
 import { WooAttribute } from "@/lib/woocommerce-attributes";
+import { formatINR } from "@/lib/product-utils";
 
-export function ActiveFiltersGrouped({ attributes }: { attributes: WooAttribute[] }) {
+export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes: WooAttribute[]; categoryLabel?: string | null }) {
   const searchParams = useSearchParams();
-  const { removeParam, toggleMultiParam, clearAll } = useFilterState();
+  const { removeParam, setParams, toggleMultiParam, clearAll } = useFilterState();
 
   // Determine active filters
   const activeCat = searchParams.get("cat");
@@ -56,8 +57,8 @@ export function ActiveFiltersGrouped({ attributes }: { attributes: WooAttribute[
       {activeCat && (
         <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
           <span className="text-xs text-primary/70 uppercase">Category:</span> 
-          {activeChild || activeSub || activeCat}
-          <button onClick={() => { removeParam("cat"); removeParam("sub"); removeParam("child"); }} className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+          {categoryLabel || activeChild || activeSub || activeCat}
+          <button onClick={() => setParams({ cat: null, sub: null, child: null })} aria-label="Remove category filter" className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -67,8 +68,8 @@ export function ActiveFiltersGrouped({ attributes }: { attributes: WooAttribute[
       {(minPrice || maxPrice) && (
         <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
           <span className="text-xs text-primary/70 uppercase">Price:</span> 
-          ₹{minPrice || "0"} – ₹{maxPrice || "Any"}
-          <button onClick={() => { removeParam("min_price"); removeParam("max_price"); }} className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+          {formatINR(Number(minPrice) || 0)} – {maxPrice ? formatINR(Number(maxPrice)) : "Any"}
+          <button onClick={() => setParams({ min_price: null, max_price: null })} aria-label="Remove price filter" className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
