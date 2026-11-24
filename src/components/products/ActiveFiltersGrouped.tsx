@@ -40,14 +40,13 @@ export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes
   if (!hasAnyFilter) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-6 p-4 bg-white rounded-2xl border border-border shadow-sm">
-      <span className="text-sm font-semibold text-foreground mr-2">Active Filters:</span>
+    <div className="mb-5 flex flex-wrap items-center gap-2">
       
       {/* Search */}
       {q && (
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
-          <span className="text-xs text-primary/70 uppercase">Search:</span> {q}
-          <button onClick={() => removeParam("q")} className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+        <div className="flex items-center gap-1.5 rounded-full border border-secondary/15 bg-white py-1 pl-3 pr-1.5 text-sm font-medium text-secondary">
+          <span className="text-muted-foreground font-normal">Search</span> {q}
+          <button onClick={() => removeParam("q")} aria-label={`Remove search "${q}"`} className="ml-0.5 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-secondary">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -55,10 +54,10 @@ export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes
 
       {/* Category */}
       {activeCat && (
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
-          <span className="text-xs text-primary/70 uppercase">Category:</span> 
+        <div className="flex items-center gap-1.5 rounded-full border border-secondary/15 bg-white py-1 pl-3 pr-1.5 text-sm font-medium text-secondary">
+          <span className="text-muted-foreground font-normal">Category</span> 
           {categoryLabel || activeChild || activeSub || activeCat}
-          <button onClick={() => setParams({ cat: null, sub: null, child: null })} aria-label="Remove category filter" className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+          <button onClick={() => setParams({ cat: null, sub: null, child: null })} aria-label="Remove category filter" className="ml-0.5 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-secondary">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -66,10 +65,10 @@ export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes
 
       {/* Price */}
       {(minPrice || maxPrice) && (
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
-          <span className="text-xs text-primary/70 uppercase">Price:</span> 
+        <div className="flex items-center gap-1.5 rounded-full border border-secondary/15 bg-white py-1 pl-3 pr-1.5 text-sm font-medium text-secondary">
+          <span className="text-muted-foreground font-normal">Price</span> 
           {formatINR(Number(minPrice) || 0)} – {maxPrice ? formatINR(Number(maxPrice)) : "Any"}
-          <button onClick={() => setParams({ min_price: null, max_price: null })} aria-label="Remove price filter" className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+          <button onClick={() => setParams({ min_price: null, max_price: null })} aria-label="Remove price filter" className="ml-0.5 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-secondary">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -77,9 +76,9 @@ export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes
 
       {/* Dynamic Attributes */}
       {activeAttributes.map((attr, idx) => (
-        <div key={`${attr.slug}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
-          <span className="text-xs text-primary/70 uppercase">{attr.label}:</span> {attr.value}
-          <button onClick={() => toggleMultiParam(attr.slug, attr.termSlug)} className="hover:bg-primary/20 rounded-full p-0.5 ml-1 transition-colors">
+        <div key={`${attr.slug}-${idx}`} className="flex items-center gap-1.5 rounded-full border border-secondary/15 bg-white py-1 pl-3 pr-1.5 text-sm font-medium text-secondary">
+          <span className="text-muted-foreground font-normal">{attr.label}</span> {attr.value}
+          <button onClick={() => toggleMultiParam(attr.slug, attr.termSlug)} aria-label={`Remove ${attr.label} ${attr.value}`} className="ml-0.5 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-secondary">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -88,9 +87,9 @@ export function ActiveFiltersGrouped({ attributes, categoryLabel }: { attributes
       {/* Clear All */}
       <button 
         onClick={clearAll}
-        className="text-sm font-semibold text-muted-foreground hover:text-foreground underline underline-offset-4 ml-auto"
+        className="ml-1 text-sm font-semibold text-primary hover:underline underline-offset-4"
       >
-        Clear All
+        Clear all
       </button>
     </div>
   );

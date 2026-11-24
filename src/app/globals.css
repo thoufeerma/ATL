@@ -274,3 +274,9 @@ body {
 html[data-menu-open] .floating-whatsapp {
   display: none;
 }
+
+/* Slim scrollbar for panels that scroll on their own (filter sidebar and drawer). */
+@utility thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(31 41 55 / 0.2) transparent;
+}

@@ -15,6 +15,8 @@ import { FilterProvider } from "@/components/products/FilterProvider";
 import { MobileFilterDrawer } from "@/components/products/MobileFilterDrawer";
 import { ActiveFiltersGrouped } from "@/components/products/ActiveFiltersGrouped";
 import { ProductPagination } from "@/components/products/ProductPagination";
+import { SearchFilter } from "@/components/products/SearchFilter";
+import { SortFilter } from "@/components/products/SortFilter";
 
 // Products per page. Rendering the whole catalogue at once made the page over 1 MB.
 const PAGE_SIZE = 24;
@@ -187,12 +189,11 @@ export default async function ProductsPage({
           intro="Weighing, billing, printing, counting, sealing, labelling and filling equipment from 50+ brands. Prices include GST."
         />
 
-        <div className="container mx-auto py-12 lg:py-16">
-          <div className="flex flex-col lg:flex-row gap-8">
-
-            {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-72 flex-shrink-0">
-              <div className="sticky top-28">
+        <div className="container mx-auto py-10 lg:py-14">
+          <div className="flex flex-col gap-8 lg:flex-row">
+            {/* Desktop filters: pinned under the navbar, scrolling on their own */}
+            <aside className="hidden w-72 flex-shrink-0 lg:block">
+              <div className="sticky top-[88px]">
                 <FilterSidebar
                   categoryTree={dynamicCategoryTree}
                   attributes={attributes}
@@ -202,29 +203,40 @@ export default async function ProductsPage({
               </div>
             </aside>
 
-            {/* Product Grid Area */}
-            <div className="flex-1">
-              {/* Toolbar */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-
-                {/* Mobile Filter Trigger */}
-                <MobileFilterDrawer>
-                  <FilterSidebar
-                    categoryTree={dynamicCategoryTree}
-                    attributes={attributes}
-                    facets={facets}
-                    priceBounds={priceBounds}
-                  />
-                </MobileFilterDrawer>
-
-                <div className="text-sm text-muted-foreground font-semibold lg:ml-auto">
-                  {totalPages > 1
-                    ? `Showing ${firstIndex + 1}–${firstIndex + mappedProducts.length} of ${totalCount} products`
-                    : `${totalCount} ${totalCount === 1 ? "product" : "products"} found`}
+            <div className="min-w-0 flex-1">
+              {/* Toolbar: search, filters (phones), sort and the result count. Pinned from tablet up. */}
+              <div className="relative z-30 mb-5 sm:sticky sm:top-[88px]">
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-secondary/10 bg-white/85 p-2 shadow-[0_10px_30px_-18px_rgba(18,26,43,0.3)] backdrop-blur-xl">
+                  <div className="w-full sm:w-auto sm:flex-1">
+                    <SearchFilter />
+                  </div>
+                  <MobileFilterDrawer resultCount={totalCount}>
+                    <FilterSidebar
+                      categoryTree={dynamicCategoryTree}
+                      attributes={attributes}
+                      facets={facets}
+                      priceBounds={priceBounds}
+                      bare
+                    />
+                  </MobileFilterDrawer>
+                  <SortFilter />
+                  <p className="ml-auto whitespace-nowrap px-2 text-sm text-muted-foreground tabular-nums">
+                    {totalPages > 1 ? (
+                      <>
+                        <span className="font-semibold text-secondary">
+                          {firstIndex + 1}–{firstIndex + mappedProducts.length}
+                        </span>{" "}
+                        of {totalCount}
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-secondary">{totalCount}</span> {totalCount === 1 ? "product" : "products"}
+                      </>
+                    )}
+                  </p>
                 </div>
               </div>
 
-              {/* Active Filters */}
               <ActiveFiltersGrouped attributes={attributes} categoryLabel={activeCategoryName} />
 
               <ProductGrid products={mappedProducts} />

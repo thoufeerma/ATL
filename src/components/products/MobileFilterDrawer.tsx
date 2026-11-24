@@ -1,93 +1,129 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { SlidersHorizontal, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useFilterState } from "./FilterProvider";
+import { useFilterState, countActiveFilters } from "./FilterProvider";
 
-export function MobileFilterDrawer({ children }: { children: React.ReactNode }) {
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
+
+// Phone and tablet filters: a button in the toolbar opens a full-height drawer.
+export function MobileFilterDrawer({ children, resultCount }: { children: React.ReactNode; resultCount: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const searchParams = useSearchParams();
-  const { clearAll } = useFilterState();
+  const { clearFilters } = useFilterState();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
-  // Calculate total active filters for the badge
-  const activeCount = Array.from(searchParams.keys()).filter(k => 
-    !['page', 'sort'].includes(k)
-  ).length;
+  const activeCount = countActiveFilters(new URLSearchParams(searchParams.toString()));
 
-  // Close drawer on path change (or just when applying since applying updates URL)
-  // But since we want "Apply" to close it:
-  const handleApply = () => {
-    setIsOpen(false);
-  };
-
-  // Prevent background scrolling when open
+  // While open: lock page scroll, move focus in and keep Tab inside, close on Escape or when the
+  // screen becomes wide enough for the sidebar (e.g. a tablet rotated to landscape).
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    if (!isOpen) return;
+    const root = document.documentElement;
+    const trigger = triggerRef.current;
+    root.style.overflow = "hidden";
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") return setIsOpen(false);
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null && !el.closest(".invisible"),
+      );
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const onWide = () => wide.matches && setIsOpen(false);
+
+    window.addEventListener("keydown", onKey);
+    wide.addEventListener("change", onWide);
     return () => {
-      document.body.style.overflow = "auto";
+      root.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+      wide.removeEventListener("change", onWide);
+      trigger?.focus();
     };
   }, [isOpen]);
 
   return (
     <>
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="lg:hidden flex items-center gap-2 bg-white border border-border px-4 py-2 rounded-xl shadow-sm text-foreground font-semibold hover:bg-muted transition-colors"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        className="flex h-11 flex-shrink-0 items-center gap-2 rounded-xl border border-secondary/15 bg-white px-3.5 text-sm font-semibold text-secondary transition-colors hover:border-secondary/30 lg:hidden"
       >
-        <Menu className="w-5 h-5" />
+        <SlidersHorizontal className="h-4 w-4" />
         Filters
         {activeCount > 0 && (
-          <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full">
-            {activeCount}
-          </span>
+          <span className="rounded-full bg-primary px-1.5 py-px text-[11px] font-bold tabular-nums text-white">{activeCount}</span>
         )}
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] flex lg:hidden">
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
-            onClick={() => setIsOpen(false)}
-          />
-          
-          <div className="relative w-full max-w-xs bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-left-full duration-300">
-            <div className="flex items-center justify-between p-4 border-b border-border bg-secondary text-white">
-              <h2 className="font-bold text-lg flex items-center gap-2">
-                <Menu className="w-5 h-5" /> Filters
-              </h2>
-              <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+      {/* Portalled to <body>: the toolbar's backdrop blur would otherwise trap this fixed panel inside it. */}
+      {isOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex" role="dialog" aria-modal="true" aria-label="Filters">
+            <div className="absolute inset-0 bg-[#080c15]/50 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              {children}
-            </div>
+            <div
+              ref={panelRef}
+              className="relative flex h-full w-full max-w-sm flex-col bg-white shadow-2xl animate-in slide-in-from-left-full duration-300"
+            >
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <h2 className="text-lg font-semibold text-secondary">
+                  Filters
+                  {activeCount > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">{activeCount} active</span>}
+                </h2>
+                <button
+                  ref={closeRef}
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close filters"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-secondary hover:bg-muted"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-            <div className="p-4 border-t border-border bg-white flex items-center gap-3">
-              <button 
-                onClick={() => {
-                  clearAll();
-                }} 
-                className="flex-1 py-3 rounded-xl border border-border text-foreground font-semibold hover:bg-muted transition-colors text-sm"
-              >
-                Reset
-              </button>
-              <button 
-                onClick={handleApply} 
-                className="flex-1 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-colors text-sm shadow-md"
-              >
-                Apply
-              </button>
+              <div className="thin-scrollbar flex-1 overflow-y-auto overscroll-contain px-5">{children}</div>
+
+              <div className="flex items-center gap-3 border-t border-border p-4">
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  disabled={activeCount === 0}
+                  className="h-12 rounded-full border border-secondary/15 px-5 text-sm font-semibold text-secondary transition-colors hover:bg-muted disabled:opacity-40"
+                >
+                  Clear all
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="h-12 flex-1 rounded-full bg-primary text-sm font-semibold text-white transition-colors hover:bg-[#c00510]"
+                >
+                  Show {resultCount} {resultCount === 1 ? "product" : "products"}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

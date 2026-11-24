@@ -1,225 +1,174 @@
 "use client";
 
-import { useFilterState } from "./FilterProvider";
-import { CategoryNode } from "@/lib/category-data";
-import { WooAttribute } from "@/lib/woocommerce-attributes";
-import { ChevronRight, ChevronDown, Filter } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ChevronRight } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useFilterState, countActiveFilters } from "./FilterProvider";
+import { FilterSection } from "./FilterSection";
 import { GenericAttributeFilter } from "./GenericAttributeFilter";
 import { PriceFilter } from "./PriceFilter";
-import { SearchFilter } from "./SearchFilter";
+import type { CategoryNode } from "@/lib/category-data";
+import type { WooAttribute, FacetCounts } from "@/lib/woocommerce-attributes";
 
-import { SortFilter } from "./SortFilter";
-import type { FacetCounts } from "@/lib/woocommerce-attributes";
-
-export function FilterSidebar({ 
-  categoryTree, 
-  attributes, 
+// Filters only: category, attributes and price, each in a collapsible section.
+// Search and sort live in the toolbar above the products.
+export function FilterSidebar({
+  categoryTree,
+  attributes,
   facets,
-  priceBounds 
-}: { 
+  priceBounds,
+  bare = false,
+}: {
   categoryTree: CategoryNode[];
   attributes: WooAttribute[];
   facets?: FacetCounts;
   priceBounds: { min: number; max: number };
+  /** Without the card frame and header (used inside the phone drawer). */
+  bare?: boolean;
 }) {
-  const { getParam, setParam, removeParam, setParams } = useFilterState();
-  
+  const { getParam, setParams, clearFilters } = useFilterState();
+  const searchParams = useSearchParams();
+
   const currentCat = getParam("cat");
   const currentSub = getParam("sub");
   const currentChild = getParam("child");
+  const activeFilters = countActiveFilters(new URLSearchParams(searchParams.toString()));
 
-  // Keep track of which L1 and L2 are expanded
   const [expandedL1, setExpandedL1] = useState<string | null>(currentCat);
   const [expandedL2, setExpandedL2] = useState<string | null>(currentSub);
-
-  // Sync expanded state with URL if changed externally
   useEffect(() => {
     if (currentCat) setExpandedL1(currentCat);
     if (currentSub) setExpandedL2(currentSub);
   }, [currentCat, currentSub]);
 
-  const selectCat = (lvl1: string) => {
-    setParams({
-      cat: lvl1,
-      sub: null,
-      child: null
-    });
-  };
+  const select = (cat: string | null, sub: string | null = null, child: string | null = null) => setParams({ cat, sub, child });
+  const isSelected = (level: 1 | 2 | 3, slug: string) =>
+    level === 1 ? currentCat === slug && !currentSub && !currentChild : level === 2 ? currentSub === slug && !currentChild : currentChild === slug;
 
-  const selectSub = (lvl1: string, lvl2: string) => {
-    setParams({
-      cat: lvl1,
-      sub: lvl2,
-      child: null
-    });
-  };
+  const row = (on: boolean) =>
+    `flex-1 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+      on ? "bg-primary/[0.08] font-semibold text-primary" : "text-secondary/80 hover:bg-muted/70 hover:text-secondary"
+    }`;
 
-  const selectChild = (lvl1: string, lvl2: string, lvl3: string) => {
-    setParams({
-      cat: lvl1,
-      sub: lvl2,
-      child: lvl3
-    });
-  };
-
-  const isSelected = (level: 1 | 2 | 3, slug: string) => {
-    if (level === 1) return currentCat === slug && !currentSub && !currentChild;
-    if (level === 2) return currentSub === slug && !currentChild;
-    if (level === 3) return currentChild === slug;
-    return false;
-  };
-
-  return (
-    <div className="bg-white rounded-2xl border border-border p-5 shadow-sm space-y-6 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto custom-scrollbar">
-      <div className="flex items-center gap-2 mb-2">
-        <Filter className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-foreground text-lg">Filters</h3>
-      </div>
-
-      {/* 1. Category Accordion */}
-      <div>
-        <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-3">
-          Category
-        </h4>
-        <div className="space-y-1">
-          {categoryTree.map((lvl1) => {
-            const isL1Expanded = expandedL1 === lvl1.slug;
-            const hasL2 = lvl1.children && lvl1.children.length > 0;
-            
+  const body = (
+    <>
+      <FilterSection title="Category" activeCount={currentCat ? 1 : 0} defaultOpen>
+        <ul className="space-y-0.5">
+          <li>
+            <button type="button" onClick={() => select(null)} className={`w-full ${row(!currentCat)}`}>
+              All products
+            </button>
+          </li>
+          {categoryTree.map((l1) => {
+            const open = expandedL1 === l1.slug;
+            const kids = l1.children ?? [];
             return (
-              <div key={lvl1.slug} className="flex flex-col">
-                <div className="flex items-center w-full group">
+              <li key={l1.slug}>
+                <div className="flex items-center gap-0.5">
                   <button
+                    type="button"
                     onClick={() => {
-                      if (hasL2) {
-                        setExpandedL1(isL1Expanded ? null : lvl1.slug);
-                        // Auto collapse L2 when collapsing L1
-                        if (isL1Expanded) setExpandedL2(null);
-                      } else {
-                        selectCat(lvl1.slug);
-                      }
+                      setExpandedL1(l1.slug);
+                      select(l1.slug);
                     }}
-                    className="p-1.5 text-muted-foreground hover:bg-muted rounded-md transition-colors"
+                    className={`${row(isSelected(1, l1.slug))} ${currentCat === l1.slug && !isSelected(1, l1.slug) ? "font-semibold text-secondary" : "font-medium"}`}
                   >
-                    {hasL2 ? (
-                      isL1Expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
-                    ) : (
-                      <span className="w-4 h-4 block" />
-                    )}
+                    {l1.title}
                   </button>
-                  <button
-                    onClick={() => {
-                      setExpandedL1(lvl1.slug);
-                      selectCat(lvl1.slug);
-                    }}
-                    className={`flex-1 text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${isSelected(1, lvl1.slug) ? "text-primary font-bold" : "text-foreground font-semibold hover:bg-muted"}`}
-                  >
-                    {lvl1.title}
-                  </button>
+                  {kids.length > 0 && (
+                    <button
+                      type="button"
+                      aria-label={open ? `Hide ${l1.title} ranges` : `Show ${l1.title} ranges`}
+                      aria-expanded={open}
+                      onClick={() => setExpandedL1(open ? null : l1.slug)}
+                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-secondary"
+                    >
+                      <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
+                    </button>
+                  )}
                 </div>
 
-                {isL1Expanded && hasL2 && (
-                  <div className="pl-6 space-y-1 mt-1 border-l border-muted ml-3">
-                    <button
-                      onClick={() => {
-                        setExpandedL2(null);
-                        selectCat(lvl1.slug);
-                      }}
-                      className={`flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${isSelected(1, lvl1.slug) ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                    >
-                      <div className={`w-1.5 h-1.5 rounded-full ${isSelected(1, lvl1.slug) ? "bg-primary" : "bg-muted-foreground"}`} />
-                      All {lvl1.title}
-                    </button>
-
-                    {lvl1.children!.map((lvl2) => {
-                      const isL2Expanded = expandedL2 === lvl2.slug;
-                      const hasL3 = lvl2.children && lvl2.children.length > 0;
-
+                {open && kids.length > 0 && (
+                  <ul className="mb-1 ml-3 mt-0.5 space-y-0.5 border-l border-border pl-2">
+                    {kids.map((l2) => {
+                      const grandKids = l2.children ?? [];
+                      const open2 = expandedL2 === l2.slug;
                       return (
-                        <div key={lvl2.slug} className="flex flex-col">
-                          <div className="flex items-center w-full group">
+                        <li key={l2.slug}>
+                          <div className="flex items-center gap-0.5">
                             <button
+                              type="button"
                               onClick={() => {
-                                if (hasL3) {
-                                  // Auto collapse other L2 siblings
-                                  setExpandedL2(isL2Expanded ? null : lvl2.slug);
-                                } else {
-                                  selectSub(lvl1.slug, lvl2.slug);
-                                }
+                                setExpandedL2(l2.slug);
+                                select(l1.slug, l2.slug);
                               }}
-                              className="p-1 text-muted-foreground hover:bg-muted rounded-md transition-colors"
+                              className={row(isSelected(2, l2.slug))}
                             >
-                              {hasL3 ? (
-                                isL2Expanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />
-                              ) : (
-                                <span className="w-3.5 h-3.5 block" />
-                              )}
+                              {l2.title}
                             </button>
-                            <button
-                              onClick={() => {
-                                setExpandedL2(lvl2.slug);
-                                selectSub(lvl1.slug, lvl2.slug);
-                              }}
-                              className={`flex-1 text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${isSelected(2, lvl2.slug) ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                            >
-                              {lvl2.title}
-                            </button>
-                          </div>
-
-                          {isL2Expanded && hasL3 && (
-                            <div className="pl-5 space-y-1 mt-1 mb-1">
+                            {grandKids.length > 0 && (
                               <button
-                                onClick={() => selectSub(lvl1.slug, lvl2.slug)}
-                                className={`flex items-center gap-2 w-full text-left px-2 py-1 rounded-lg text-sm transition-colors ${isSelected(2, lvl2.slug) ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                                type="button"
+                                aria-label={open2 ? `Hide ${l2.title} types` : `Show ${l2.title} types`}
+                                aria-expanded={open2}
+                                onClick={() => setExpandedL2(open2 ? null : l2.slug)}
+                                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
                               >
-                                <div className={`w-1.5 h-1.5 rounded-full ${isSelected(2, lvl2.slug) ? "bg-primary" : "border border-muted-foreground"}`} />
-                                All {lvl2.title}
+                                <ChevronRight className={`h-3.5 w-3.5 transition-transform duration-200 ${open2 ? "rotate-90" : ""}`} />
                               </button>
-
-                              {lvl2.children!.map((lvl3) => (
-                                <button
-                                  key={lvl3.slug}
-                                  onClick={() => selectChild(lvl1.slug, lvl2.slug, lvl3.slug)}
-                                  className={`flex items-center gap-2 w-full text-left px-2 py-1 rounded-lg text-sm transition-colors ${isSelected(3, lvl3.slug) ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
-                                >
-                                  <div className={`w-1.5 h-1.5 rounded-full ${isSelected(3, lvl3.slug) ? "bg-primary" : "border border-transparent"}`} />
-                                  {lvl3.title}
-                                </button>
+                            )}
+                          </div>
+                          {open2 && grandKids.length > 0 && (
+                            <ul className="ml-3 space-y-0.5 border-l border-border pl-2">
+                              {grandKids.map((l3) => (
+                                <li key={l3.slug}>
+                                  <button
+                                    type="button"
+                                    onClick={() => select(l1.slug, l2.slug, l3.slug)}
+                                    className={`w-full ${row(isSelected(3, l3.slug))}`}
+                                  >
+                                    {l3.title}
+                                  </button>
+                                </li>
                               ))}
-                            </div>
+                            </ul>
                           )}
-                        </div>
+                        </li>
                       );
                     })}
-                  </div>
+                  </ul>
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
-      </div>
+        </ul>
+      </FilterSection>
 
-      {/* 2. Search */}
-      <div className="pt-4 border-t border-border">
-        <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-3">
-          Search
-        </h4>
-        <SearchFilter />
-      </div>
-
-      {/* 3. Dynamic Attribute Filters (Brand, Capacity, etc.) */}
-      {attributes.map(attr => (
+      {attributes.map((attr) => (
         <GenericAttributeFilter key={attr.id} attribute={attr} counts={facets?.[attr.slug]} />
       ))}
 
-      {/* 4. Price Filter */}
-      {priceBounds.min < priceBounds.max && (
-        <PriceFilter key={`${priceBounds.min}-${priceBounds.max}`} bounds={priceBounds} />
-      )}
+      {priceBounds.min < priceBounds.max && <PriceFilter key={`${priceBounds.min}-${priceBounds.max}`} bounds={priceBounds} />}
+    </>
+  );
 
-      {/* 5. Sort Filter */}
-      <SortFilter />
+  if (bare) return <div>{body}</div>;
+
+  return (
+    <div className="flex max-h-[calc(100vh-7rem)] flex-col rounded-2xl border border-secondary/10 bg-white">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <h2 className="font-semibold text-secondary">
+          Filters
+          {activeFilters > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">{activeFilters} active</span>}
+        </h2>
+        {activeFilters > 0 && (
+          <button type="button" onClick={clearFilters} className="text-sm font-semibold text-primary hover:underline underline-offset-4">
+            Clear all
+          </button>
+        )}
+      </div>
+      {/* Scrolls on its own, so every filter is reachable without scrolling the page */}
+      <div className="thin-scrollbar flex-1 overflow-y-auto overscroll-contain px-5">{body}</div>
     </div>
   );
 }

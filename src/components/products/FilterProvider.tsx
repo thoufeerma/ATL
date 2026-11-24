@@ -9,6 +9,8 @@ interface FilterContextType {
   removeParam: (key: string) => void;
   toggleMultiParam: (key: string, value: string) => void;
   clearAll: () => void;
+  /** Clears the filters but keeps the search and sort from the toolbar. */
+  clearFilters: () => void;
   getParam: (key: string) => string | null;
   getMultiParam: (key: string) => string[];
   isActive: (key: string, value: string) => boolean;
@@ -78,6 +80,15 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     updateUrl(new URLSearchParams());
   }, [updateUrl]);
 
+  const clearFilters = useCallback(() => {
+    const params = new URLSearchParams();
+    ["q", "sort"].forEach((k) => {
+      const v = searchParams.get(k);
+      if (v) params.set(k, v);
+    });
+    updateUrl(params);
+  }, [searchParams, updateUrl]);
+
   const getParam = useCallback((key: string) => {
     return searchParams.get(key);
   }, [searchParams]);
@@ -100,6 +111,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
         removeParam,
         toggleMultiParam,
         clearAll,
+        clearFilters,
         getParam,
         getMultiParam,
         isActive
@@ -116,4 +128,18 @@ export function useFilterState() {
     throw new Error("useFilterState must be used within a FilterProvider");
   }
   return context;
+}
+
+/**
+ * How many filters are applied: the category (whatever its depth), the price range,
+ * and each attribute (WooCommerce attribute params start with "pa_"). Tracking params don't count.
+ */
+export function countActiveFilters(params: URLSearchParams): number {
+  let n = 0;
+  if (params.get("cat")) n++;
+  if (params.get("min_price") || params.get("max_price")) n++;
+  params.forEach((value, key) => {
+    if (key.startsWith("pa_") && value) n++;
+  });
+  return n;
 }

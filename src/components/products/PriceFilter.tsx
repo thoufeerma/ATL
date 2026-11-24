@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/slider";
 import { useFilterState } from "./FilterProvider";
+import { FilterSection } from "./FilterSection";
 
 export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }) {
   const { setParams, getParam } = useFilterState();
@@ -71,47 +72,46 @@ export function PriceFilter({ bounds }: { bounds: { min: number; max: number } }
   };
 
   return (
-    <div className="pt-4 border-t border-border" data-price-filter>
-      <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-4">
-        Price
-      </h4>
-
-      <div className="px-2 mb-6">
-        <Slider
-          min={bounds.min}
-          max={bounds.max}
-          step={10}
-          value={values}
-          onValueChange={handleSliderChange}
-        />
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="flex-1">
-          <label className="text-xs text-muted-foreground mb-1 block">Min (₹)</label>
-          <input
-            type="number"
-            min={bounds.min}
-            max={bounds.max}
-            value={inputMin}
-            aria-label="Minimum price"
-            onChange={(e) => handleInputChange(0, e.target.value)}
-            className="w-full px-2 py-1.5 rounded-lg border border-border bg-white text-sm outline-none focus:ring-1 focus:ring-primary/50"
-          />
+    <FilterSection title="Price" activeCount={urlMin || urlMax ? 1 : 0}>
+      <div data-price-filter>
+        <div className="mb-5 px-2 pt-2">
+          <Slider min={bounds.min} max={bounds.max} step={10} value={values} onValueChange={handleSliderChange} />
         </div>
-        <div className="flex-1">
-          <label className="text-xs text-muted-foreground mb-1 block">Max (₹)</label>
-          <input
-            type="number"
-            min={bounds.min}
-            max={bounds.max}
-            value={inputMax}
-            aria-label="Maximum price"
-            onChange={(e) => handleInputChange(1, e.target.value)}
-            className="w-full px-2 py-1.5 rounded-lg border border-border bg-white text-sm outline-none focus:ring-1 focus:ring-primary/50"
-          />
+
+        <div className="flex items-center gap-2">
+          <label className="flex-1">
+            <span className="mb-1 block text-xs text-muted-foreground">Min</span>
+            <span className="flex items-center rounded-lg border border-border bg-white px-2.5 focus-within:border-secondary/40">
+              <span className="text-sm text-muted-foreground">₹</span>
+              <input
+                type="number"
+                min={bounds.min}
+                max={bounds.max}
+                value={inputMin}
+                aria-label="Minimum price"
+                onChange={(e) => handleInputChange(0, e.target.value)}
+                className="w-full bg-transparent px-1.5 py-2 text-sm tabular-nums outline-none"
+              />
+            </span>
+          </label>
+          <span aria-hidden className="mt-5 text-muted-foreground">–</span>
+          <label className="flex-1">
+            <span className="mb-1 block text-xs text-muted-foreground">Max</span>
+            <span className="flex items-center rounded-lg border border-border bg-white px-2.5 focus-within:border-secondary/40">
+              <span className="text-sm text-muted-foreground">₹</span>
+              <input
+                type="number"
+                min={bounds.min}
+                max={bounds.max}
+                value={inputMax}
+                aria-label="Maximum price"
+                onChange={(e) => handleInputChange(1, e.target.value)}
+                className="w-full bg-transparent px-1.5 py-2 text-sm tabular-nums outline-none"
+              />
+            </span>
+          </label>
         </div>
       </div>
-    </div>
+    </FilterSection>
   );
 }

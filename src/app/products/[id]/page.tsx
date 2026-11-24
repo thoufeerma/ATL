@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductDetailClient, { type RelatedProduct } from "./ProductDetailClient";
@@ -51,23 +52,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   try {
     wcProduct = await fetchWooCommerce(`products/${id}`);
   } catch (err) {
-    console.error("Error fetching product:", err);
+    // A missing product is expected (old links); only log real failures.
+    if (!String(err).includes("(404)")) console.error("Error fetching product:", err);
   }
 
+  // A missing product answers with a real 404 (see not-found.tsx beside this file).
   if (!wcProduct || wcProduct.code === "woocommerce_rest_product_invalid_id" || wcProduct.data?.status === 404) {
-    return (
-      <main className="min-h-screen bg-muted/30">
-        <Navbar />
-        <div className="pt-32 pb-20 text-center flex flex-col items-center">
-          <h1 className="text-3xl font-extrabold text-foreground mb-4">Product Not Found</h1>
-          <p className="text-muted-foreground mb-8">The product you are looking for does not exist or has been removed.</p>
-          <a href="/products" className="bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors">
-            Browse All Products
-          </a>
-        </div>
-        <Footer />
-      </main>
-    );
+    notFound();
   }
 
   const product = {
