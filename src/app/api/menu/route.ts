@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getWooCommerceCategories } from "@/lib/woocommerce-categories";
 import { buildCategoryTree } from "@/lib/category-data";
+import { withCatalogueCategories } from "@/lib/category-fallback";
 
 // Category tree for the navbar mega menu.
 // A GET route (instead of a Server Action) so the WooCommerce fetch is served from
@@ -8,14 +9,14 @@ import { buildCategoryTree } from "@/lib/category-data";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const tree = buildCategoryTree(await getWooCommerceCategories());
+  const live = buildCategoryTree(await getWooCommerceCategories());
+  const tree = withCatalogueCategories(live);
 
-  // WordPress unreachable: don't let an empty menu get cached.
-  if (tree.length === 0) {
-    return NextResponse.json([], { status: 503, headers: { "Cache-Control": "no-store" } });
-  }
+  // WordPress unreachable or empty: serve the fixed catalogue, but only cache it briefly
+  // so live categories show up soon after WordPress is back.
+  const cacheControl = live.length
+    ? "public, max-age=300, s-maxage=300, stale-while-revalidate=86400"
+    : "public, max-age=60, s-maxage=60";
 
-  return NextResponse.json(tree, {
-    headers: { "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400" },
-  });
+  return NextResponse.json(tree, { headers: { "Cache-Control": cacheControl } });
 }

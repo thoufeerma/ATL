@@ -1,116 +1,82 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
+import { getWooCommerceCategories } from "@/lib/woocommerce-categories";
+import { buildCategoryTree, type CategoryNode } from "@/lib/category-data";
+import { withCatalogueCategories } from "@/lib/category-fallback";
+import { categoryImage } from "@/lib/category-images";
+import SectionHeader from "./SectionHeader";
+import Reveal from "@/components/motion/Reveal";
+import SpotlightCard from "@/components/motion/SpotlightCard";
 
-const categories = [
-  {
-    title: "Weighing Systems",
-    description: "Retail, industrial, lab, crane & jewellery scales.",
-    image: "/images/categories/Weighing Systems.png",
-    fallback: "https://images.unsplash.com/photo-1594897030264-ab7d87efc473?q=80&w=800",
-    link: "/products?cat=weighing-scale",
-    count: "11 subcategories"
-  },
-  {
-    title: "Billing Solutions",
-    description: "POS terminals, barcode scanners, receipt printers.",
-    image: "/images/categories/Billing Solutions.png",
-    fallback: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800",
-    link: "/products?cat=billing-solutions",
-    count: "7 subcategories"
-  },
-  {
-    title: "Printing Scales",
-    description: "Receipt printing, label printing & AI scale solutions.",
-    image: "/images/categories/Printing Scales.png",
-    fallback: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=800",
-    link: "/products?cat=printing-scales",
-    count: "5 subcategories"
-  },
-  {
-    title: "Counting Machines",
-    description: "Currency, coin & value counting solutions.",
-    image: "/images/categories/Counting Machines.png",
-    fallback: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=800",
-    link: "/products?cat=counting",
-    count: "4 subcategories"
-  },
-  {
-    title: "Sealing Machines",
-    description: "Hand, vacuum, band, heat shrink & foil sealers.",
-    image: "/images/categories/Sealing Machines.png",
-    fallback: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
-    link: "/products?cat=sealing",
-    count: "11 subcategories"
-  },
-  {
-    title: "Labelling Systems",
-    description: "Batch coders, inkjet printers, bottle labellers.",
-    image: "/images/categories/Labelling Systems.png",
-    fallback: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800",
-    link: "/products?cat=labelling",
-    count: "4 subcategories"
-  },
-  {
-    title: "Filling Machines",
-    description: "Liquid, paste, milk & pneumatic filling systems.",
-    image: "/images/categories/Filling Machines.png",
-    fallback: "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=800",
-    link: "/products?cat=filling",
-    count: "6 subcategories"
-  },
-  {
-    title: "Other Products",
-    description: "Token dispensers, gold analyzers, locker systems.",
-    image: "/images/categories/other products.png",
-    fallback: "https://images.unsplash.com/photo-1582139329536-e7284fece509?q=80&w=800",
-    link: "/products?cat=other",
-    count: "3 subcategories"
-  }
-];
 
-function CategoryCard({ cat }: { cat: typeof categories[0] }) {
-  return (
-    <Link href={cat.link} className="group flex flex-col rounded-2xl overflow-hidden bg-white border border-border shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-      <div className="relative h-52 w-full overflow-hidden bg-muted">
-        <img
-          src={cat.image}
-          alt={cat.title}
-          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      </div>
-      <div className="p-6 flex flex-col flex-1">
-        <span className="text-xs font-bold text-primary uppercase tracking-widest mb-1">{cat.count}</span>
-        <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors">{cat.title}</h3>
-        <p className="text-sm text-muted-foreground mb-4 flex-1">{cat.description}</p>
-        <div className="flex items-center text-primary font-bold text-sm">
-          Browse Products <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" />
-        </div>
-      </div>
-    </Link>
-  );
+
+
+// Bento layout: the first range is the big tile, the last one spans two columns.
+function tileClass(i: number, total: number) {
+  if (i === 0) return "col-span-2 lg:row-span-2";
+  if (i === total - 1) return "col-span-2";
+  return "";
 }
 
-export default function Categories() {
+export default async function Categories() {
+  const tree = withCatalogueCategories(buildCategoryTree(await getWooCommerceCategories()));
+  // Photos are keyed by catalogue slug, so a range keeps its photo whatever WordPress calls it.
+  const ranges = tree
+    .map((c) => ({ ...c, image: categoryImage(c.slug) }))
+    .filter((c): c is CategoryNode & { image: string } => !!c.image);
+
   return (
-    <section className="py-24 bg-muted/30">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-14">
-          <div className="max-w-2xl">
-            <h2 className="text-sm font-bold text-primary uppercase tracking-widest mb-3">Our Solutions</h2>
-            <h3 className="text-4xl md:text-5xl font-extrabold text-foreground leading-tight">
-              Complete Product Ecosystem
-            </h3>
-          </div>
-          <Link href="/products" className="mt-6 md:mt-0 text-primary font-bold flex items-center gap-2 hover:underline underline-offset-4 decoration-2">
-            View All Products <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {categories.map((cat, idx) => (
-            <CategoryCard key={idx} cat={cat} />
-          ))}
-        </div>
+    <section className="py-20 lg:py-28 bg-white">
+      <div className="container mx-auto">
+        <SectionHeader
+          title={<>Everything you weigh, bill, pack and label.</>}
+          intro="Eight product ranges from one supplier, with installation and service included."
+          link={{ href: "/products", text: "Browse all products" }}
+        />
+
+        <ul className="grid grid-cols-2 lg:grid-cols-4 auto-rows-[200px] sm:auto-rows-[240px] gap-3 sm:gap-4">
+          {ranges.map((cat, i) => {
+            const children = cat.children ?? [];
+            const big = i === 0;
+            const shown = children.slice(0, big ? 5 : 3).map((c) => c.title);
+            const more = children.length - shown.length;
+            return (
+              <Reveal as="li" key={cat.slug} delay={(i % 4) * 0.06} className={tileClass(i, ranges.length)}>
+                <SpotlightCard className="h-full rounded-2xl bg-secondary" color="rgba(255,255,255,0.14)">
+                  <Link href={`/products?cat=${cat.slug}`} className="group relative block h-full">
+                    <Image
+                      src={cat.image}
+                      alt=""
+                      fill
+                      sizes={big ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}
+                      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06]"
+                    />
+                    {/* Dark scrim under the text so names stay readable over busy photos */}
+                    <div className="absolute inset-x-0 bottom-0 h-[78%] bg-gradient-to-t from-[#080c15] via-[#080c15]/75 to-transparent" />
+                    <span className="absolute top-4 left-4 label-caps text-white/70 tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="absolute top-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition-all duration-300 group-hover:bg-primary group-hover:rotate-45">
+                      <ArrowUpRight className="h-5 w-5" />
+                    </span>
+                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 [text-shadow:0_1px_14px_rgba(0,0,0,0.55)]">
+                      <h3 className={`font-semibold tracking-[-0.03em] text-white ${big ? "text-2xl sm:text-4xl" : "text-lg sm:text-xl"}`}>
+                        {cat.title}
+                      </h3>
+                      {shown.length > 0 && (
+                        <p className={`mt-1.5 text-white/85 leading-snug ${big ? "text-sm sm:text-base max-w-md" : "max-sm:hidden text-sm line-clamp-2"}`}>
+                          {shown.join(" · ")}
+                          {more > 0 && ` · +${more} more`}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </SpotlightCard>
+              </Reveal>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );

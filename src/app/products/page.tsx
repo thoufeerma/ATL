@@ -1,10 +1,12 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { redirect } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
 import { fetchAllWooCommerce } from "@/lib/woocommerce";
 import { getWooCommerceCategories, resolveSlugsToIds } from "@/lib/woocommerce-categories";
 import { getWooCommerceAttributes, WooAttribute, type FacetCounts } from "@/lib/woocommerce-attributes";
 import { buildCategoryTree, getDescendantSlugs } from "@/lib/category-data";
+import { withCatalogueCategories, findCategoryTitle, liveSlug } from "@/lib/category-fallback";
 import { decodeEntities } from "@/lib/html";
 import { getPricing, normalizeTerm } from "@/lib/product-utils";
 import { FilterSidebar } from "@/components/products/FilterSidebar";
@@ -37,31 +39,52 @@ export default async function ProductsPage({
 
   // 1. Attributes & categories
   const [attributes, wooCategories] = await Promise.all([getWooCommerceAttributes(), getWooCommerceCategories()]);
-  const dynamicCategoryTree = buildCategoryTree(wooCategories);
+  const dynamicCategoryTree = withCatalogueCategories(buildCategoryTree(wooCategories));
+
+  // Old or alternative category slugs (e.g. ?cat=weighing-scale once WordPress calls it "weighing")
+  // go to the URL with the slugs WordPress uses now, so filters and highlighting match.
+  const renamed = (["cat", "sub", "child"] as const).filter((k) => {
+    const v = str(k);
+    return v && liveSlug(dynamicCategoryTree, v) !== v;
+  });
+  if (renamed.length) {
+    const qs = new URLSearchParams();
+    Object.entries(resolvedParams).forEach(([k, v]) => {
+      if (typeof v === "string") qs.set(k, renamed.includes(k as never) ? liveSlug(dynamicCategoryTree, v) : v);
+    });
+    redirect(`/products?${qs.toString()}`);
+  }
 
   // 2. Category filter (selected category + all of its descendants)
   const activeSlug = childParam ?? subParam ?? catParam;
   const activeCategoryName = activeSlug
-    ? decodeEntities(wooCategories.find((c) => c.slug === activeSlug)?.name) || activeSlug
+    ? decodeEntities(wooCategories.find((c) => c.slug === activeSlug)?.name) ||
+      findCategoryTitle(dynamicCategoryTree, activeSlug) ||
+      activeSlug
     : null;
 
   // Only the fields the listing uses: full product objects (descriptions etc.) are ~10x larger.
+  let categoryMissing = false;
   let wcQuery = "status=publish&_fields=id,name,type,price,regular_price,sale_price,price_html,images,categories,attributes";
   if (activeSlug) {
     const slugsToLookup = Array.from(new Set([activeSlug, ...getDescendantSlugs(wooCategories, activeSlug)]));
     const categoryIds = await resolveSlugsToIds(slugsToLookup);
+    // A catalogue category that doesn't exist in WordPress yet has no products (rather than all of them).
     if (categoryIds.length > 0) wcQuery += `&category=${categoryIds.join(",")}`;
+    else categoryMissing = true;
   }
   if (searchParam) wcQuery += `&search=${encodeURIComponent(searchParam)}`;
   if (sortParam === "price-asc") wcQuery += `&orderby=price&order=asc`;
   else if (sortParam === "price-desc") wcQuery += `&orderby=price&order=desc`;
   else if (sortParam === "date-desc") wcQuery += `&orderby=date&order=desc`;
   else if (sortParam === "title-asc") wcQuery += `&orderby=title&order=asc`;
+  // Default: the order saved in WooCommerce (each product's menu order, set from the catalogue sheet).
+  else wcQuery += `&orderby=menu_order&order=asc`;
 
   // 3. Fetch every matching product (not just the first 100)
   let products: any[] = [];
   try {
-    products = await fetchAllWooCommerce(`products?${wcQuery}`);
+    if (!categoryMissing) products = await fetchAllWooCommerce(`products?${wcQuery}`);
   } catch (err) {
     console.error("Failed fetching products:", err);
   }
@@ -83,7 +106,7 @@ export default async function ProductsPage({
       brand: decodeEntities(brandAttr?.options?.[0]) || decodeEntities(p.brands?.[0]?.name) || "Generic",
       price: price ?? 0,
       mrp,
-      image: p.images?.[0]?.src || "https://placehold.co/600x600/18181b/52525b?text=No+Image",
+      image: p.images?.[0]?.src || "",
       capacity: "-",
       accuracy: "-",
       termNames,
@@ -150,34 +173,26 @@ export default async function ProductsPage({
 
   return (
     <FilterProvider>
-      <main className="min-h-screen bg-muted/30">
+      <main className="min-h-screen bg-muted">
         <Navbar />
 
-        {/* Page Header */}
-        <div className="bg-secondary text-white pt-32 pb-16">
-          <div className="container mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-              <Link href="/" className="hover:text-white">Home</Link>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-white font-semibold">Products</span>
-            </div>
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">All Products</h1>
-                <p className="text-zinc-300 text-lg font-light max-w-2xl">
-                  Browse our complete range of precision weighing, billing, packaging & automation solutions from your WooCommerce store.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHero
+          crumbs={
+            activeCategoryName
+              ? [{ label: "Products", href: "/products" }, { label: activeCategoryName }]
+              : [{ label: "Products" }]
+          }
+          title={searchParam ? `Results for “${searchParam}”` : activeCategoryName ?? "Every machine we sell,"}
+          accent={searchParam || activeCategoryName ? undefined : "in one place."}
+          intro="Weighing, billing, printing, counting, sealing, labelling and filling equipment from 50+ brands. Prices include GST."
+        />
 
-        <div className="container mx-auto px-4 md:px-8 py-12">
+        <div className="container mx-auto py-12 lg:py-16">
           <div className="flex flex-col lg:flex-row gap-8">
 
             {/* Desktop Sidebar Filters */}
             <aside className="hidden lg:block w-72 flex-shrink-0">
-              <div className="sticky top-24">
+              <div className="sticky top-28">
                 <FilterSidebar
                   categoryTree={dynamicCategoryTree}
                   attributes={attributes}
@@ -218,6 +233,7 @@ export default async function ProductsPage({
             </div>
           </div>
         </div>
+        <Footer />
       </main>
     </FilterProvider>
   );

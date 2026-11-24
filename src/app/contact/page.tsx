@@ -1,124 +1,188 @@
 "use client";
 
-import Navbar from "@/components/layout/Navbar";
-import Link from "next/link";
 import { useState } from "react";
-import { ChevronRight, Phone, MessageSquare, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, CheckCircle2, Send } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
+import { PHONE_DISPLAY, PHONE_NUMBER, whatsappLink } from "@/lib/contact";
 
-const departments = [
-  { id: "sales", label: "Sales Enquiry" },
-  { id: "support", label: "Customer Support" },
-  { id: "technical", label: "Technical Support" },
-  { id: "service", label: "Service Request" },
-  { id: "accounts", label: "Accounts / Billing" }
-];
+const departments = ["Sales enquiry", "Customer support", "Technical support", "Service request", "Accounts / billing"];
+
+const EMAIL = "accuratetradelinks@gmail.com";
+const ADDRESS = "TC 26/640(3), Future Centre, Oottukuzhy Road, Thiruvananthapuram 695001";
+const MAP_EMBED = "https://www.google.com/maps?q=Accurate+Trade+Links+Oottukuzhy+Thiruvananthapuram&output=embed";
+const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Accurate+Trade+Links+Oottukuzhy+Trivandrum";
+
+const field =
+  "w-full rounded-xl border border-secondary/15 bg-white px-4 py-3.5 text-[15px] text-secondary outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-secondary focus:ring-4 focus:ring-secondary/5";
 
 export default function ContactPage() {
-  const [dept, setDept] = useState("sales");
-  const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [dept, setDept] = useState(departments[0]);
+  const [sent, setSent] = useState(false);
+  const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // The site has no mail backend, so the message is handed to WhatsApp, already written out.
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
-  };
+    const lines = [`Hello ATL, ${dept.toLowerCase()} from ${form.name}.`, `Phone: ${form.phone}`];
+    if (form.email) lines.push(`Email: ${form.email}`);
+    const text = [...lines, "", form.message].join("\n");
+    window.open(whatsappLink(text), "_blank", "noopener,noreferrer");
+    setSent(true);
+  }
 
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="bg-secondary text-white pt-20 pb-16">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-white font-semibold">Contact</span>
-          </div>
-          <h1 className="text-5xl font-extrabold text-white mb-4">Get In Touch</h1>
-          <p className="text-zinc-300 text-lg font-light max-w-3xl">Our team of experts is ready to help you find the perfect solution for your business.</p>
-        </div>
-      </div>
+      <PageHero
+        crumbs={[{ label: "Contact" }]}
+        title="Tell us what you"
+        accent="weigh, bill or pack."
+        intro="Send a message, call, or walk in to our showroom at Oottukuzhy. We reply within one business day."
+      />
 
-      <div className="container mx-auto px-4 md:px-8 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 bg-white border border-border rounded-3xl p-8 shadow-sm">
-            <h2 className="text-2xl font-extrabold text-foreground mb-2">Send Us a Message</h2>
-            <p className="text-muted-foreground mb-6 font-light">We will respond within one business day.</p>
-            <div className="mb-6">
-              <label className="block text-sm font-bold text-foreground mb-2">Select Department</label>
-              <div className="flex flex-wrap gap-2">
-                {departments.map(d => (
-                  <button key={d.id} onClick={() => setDept(d.id)} className={`px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${dept === d.id ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary hover:text-primary"}`}>
-                    {d.label}
+      <section className="py-16 lg:py-24">
+        <div className="container mx-auto grid lg:grid-cols-12 gap-10 lg:gap-14">
+          {/* Form */}
+          <div className="lg:col-span-7">
+            <div className="rounded-3xl border border-secondary/10 bg-muted p-6 sm:p-10">
+              {!sent ? (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <fieldset>
+                    <legend className="text-sm text-muted-foreground">What is it about?</legend>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {departments.map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          aria-pressed={dept === d}
+                          onClick={() => setDept(d)}
+                          className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                            dept === d
+                              ? "border-secondary bg-secondary text-white"
+                              : "border-secondary/15 bg-white text-secondary hover:border-secondary/40"
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <label className="block">
+                      <span className="text-sm font-medium text-secondary">Your name</span>
+                      <input required autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={`mt-2 ${field}`} />
+                    </label>
+                    <label className="block">
+                      <span className="text-sm font-medium text-secondary">Phone</span>
+                      <input required type="tel" autoComplete="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+91" className={`mt-2 ${field}`} />
+                    </label>
+                  </div>
+                  <label className="block">
+                    <span className="text-sm font-medium text-secondary">
+                      Email <span className="font-normal text-muted-foreground">(optional)</span>
+                    </span>
+                    <input type="email" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={`mt-2 ${field}`} />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-medium text-secondary">Message</span>
+                    <textarea
+                      required
+                      rows={5}
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      placeholder="What do you need? A model number or the kind of business helps."
+                      className={`mt-2 resize-none ${field}`}
+                    />
+                  </label>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-7 py-4 font-semibold text-white shadow-[0_10px_30px_-10px_rgba(227,6,19,0.7)] transition-colors hover:bg-[#ff1a27]"
+                    >
+                      <Send className="h-4 w-4" /> Send on WhatsApp
+                    </button>
+                    <p className="text-sm text-muted-foreground">Opens WhatsApp with your message filled in.</p>
+                  </div>
+                </form>
+              ) : (
+                <div className="py-10 sm:py-16">
+                  <CheckCircle2 className="h-10 w-10 text-[#1faa53]" />
+                  <h2 className="mt-6 font-display text-4xl text-secondary">Almost there, {form.name.split(" ")[0]}.</h2>
+                  <p className="mt-4 max-w-md text-muted-foreground leading-relaxed">
+                    WhatsApp opened with your message. Press send there and we will reply within one business day. If it
+                    didn&apos;t open, call us on{" "}
+                    <a href={`tel:${PHONE_NUMBER}`} className="font-semibold text-secondary">{PHONE_DISPLAY}</a>.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSent(false);
+                      setForm({ name: "", phone: "", email: "", message: "" });
+                    }}
+                    className="mt-8 rounded-full border border-secondary/15 bg-white px-5 py-3 text-sm font-semibold text-secondary transition-colors hover:border-secondary/40"
+                  >
+                    Write another message
                   </button>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
-            {!submitted ? (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="block text-sm font-bold text-foreground mb-1.5">Full Name *</label>
-                    <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Your full name" className="w-full px-4 py-3 rounded-xl border border-border bg-muted/30 outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-foreground mb-1.5">Phone Number *</label>
-                    <input required value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91 00000 00000" className="w-full px-4 py-3 rounded-xl border border-border bg-muted/30 outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1.5">Email Address *</label>
-                  <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="your@email.com" className="w-full px-4 py-3 rounded-xl border border-border bg-muted/30 outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1.5">Message *</label>
-                  <textarea required rows={5} value={form.message} onChange={e => setForm({...form, message: e.target.value})} placeholder="Describe your requirement..." className="w-full px-4 py-3 rounded-xl border border-border bg-muted/30 outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium resize-none" />
-                </div>
-                <Button type="submit" size="lg" className="w-full rounded-full bg-primary text-white hover:bg-primary/90 font-bold text-lg h-14 gap-3">
-                  <Send className="w-5 h-5" /> Send Message
-                </Button>
-              </form>
-            ) : (
-              <div className="text-center py-16">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="w-10 h-10 text-green-500" />
-                </div>
-                <h3 className="text-2xl font-extrabold text-foreground mb-3">Message Received!</h3>
-                <p className="text-muted-foreground font-light">Thank you, {form.name}. Our team will respond within one business day.</p>
-                <Button className="mt-8 rounded-full bg-primary text-white font-bold" onClick={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", message: "" }); }}>Send Another Message</Button>
-              </div>
-            )}
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-secondary text-white rounded-2xl p-6">
-              <h3 className="font-extrabold text-lg mb-4">Contact Information</h3>
-              <div className="space-y-4 text-sm font-light">
-                <div className="flex items-start gap-3"><Phone className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Phone</div><div className="text-zinc-300">+91 9747541006, 0471 2334553</div></div></div>
-                <div className="flex items-start gap-3"><MessageSquare className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">WhatsApp</div><div className="text-zinc-300">+91 9747541006</div></div></div>
-                <div className="flex items-start gap-3"><Mail className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Email</div><div className="text-zinc-300">accuratetradelinks@gmail.com</div></div></div>
-                <div className="flex items-start gap-3"><MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Address</div><div className="text-zinc-300">ACCURATE TRADE LINKS<br/>TC 26/640(3), Future Centre<br/>Oottukuzhy Road, Trivandrum-1</div></div></div>
-                <div className="flex items-start gap-3"><Clock className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" /><div><div className="font-semibold text-white">Working Hours</div><div className="text-zinc-300">Monday to Saturday: 9AM to 6PM</div></div></div>
-                <div className="flex items-start gap-3 pt-2 text-zinc-500 font-mono text-xs">GST: 32AHJPK1741Q1Z4</div>
+          {/* Details and map */}
+          <div className="lg:col-span-5">
+            <dl className="divide-y divide-secondary/15 border-y border-secondary/15">
+              <div className="py-5">
+                <dt className="text-sm text-muted-foreground">Call</dt>
+                <dd className="mt-1.5 space-y-0.5 text-lg">
+                  <a href={`tel:${PHONE_NUMBER}`} className="block font-semibold text-secondary hover:text-primary transition-colors">{PHONE_DISPLAY}</a>
+                  <a href="tel:04712334553" className="block text-secondary/70 hover:text-primary transition-colors">0471 2334553</a>
+                </dd>
               </div>
-            </div>
-            <div className="bg-green-500 rounded-2xl p-6 text-white text-center">
-              <MessageSquare className="w-10 h-10 mx-auto mb-3" />
-              <h3 className="font-extrabold text-lg mb-2">WhatsApp Us Now</h3>
-              <p className="text-white/80 text-sm mb-4 font-light">Get instant response on WhatsApp during business hours.</p>
-              <a href="https://wa.me/919747541006" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-full bg-white text-green-600 font-bold text-sm hover:bg-green-50 text-center">
-                Open WhatsApp
-              </a>
-            </div>
-            <div className="rounded-2xl overflow-hidden border border-border h-56 bg-muted flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MapPin className="w-8 h-8 mx-auto mb-2" />
-                <p className="text-sm font-medium">Map - Thiruvananthapuram</p>
+              <div className="py-5">
+                <dt className="text-sm text-muted-foreground">WhatsApp</dt>
+                <dd className="mt-1.5 text-lg">
+                  <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="font-semibold text-secondary hover:text-primary transition-colors">
+                    {PHONE_DISPLAY}
+                  </a>
+                </dd>
               </div>
+              <div className="py-5">
+                <dt className="text-sm text-muted-foreground">Email</dt>
+                <dd className="mt-1.5 text-lg">
+                  <a href={`mailto:${EMAIL}`} className="font-semibold text-secondary break-all hover:text-primary transition-colors">{EMAIL}</a>
+                </dd>
+              </div>
+              <div className="py-5">
+                <dt className="text-sm text-muted-foreground">Showroom</dt>
+                <dd className="mt-1.5">
+                  <address className="not-italic text-secondary leading-relaxed">{ADDRESS}</address>
+                  <p className="mt-1 text-sm text-muted-foreground">Monday to Saturday, 9 AM to 6 PM</p>
+                  <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group mt-3 inline-flex items-center gap-1 font-semibold text-secondary hover:text-primary transition-colors">
+                    Get directions
+                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                </dd>
+              </div>
+            </dl>
+            <div className="mt-6 aspect-[4/3] overflow-hidden rounded-2xl border border-secondary/10 bg-muted">
+              <iframe
+                title="Map to the ATL showroom"
+                src={MAP_EMBED}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-full w-full border-0 grayscale-[0.4]"
+              />
             </div>
+            <p className="mt-4 text-sm text-muted-foreground tabular-nums">GSTIN 32AHJPK1741Q1Z4</p>
           </div>
         </div>
-      </div>
+      </section>
+
+      <Footer cta={false} />
     </main>
   );
 }

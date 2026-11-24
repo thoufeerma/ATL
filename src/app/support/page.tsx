@@ -1,102 +1,184 @@
-import Navbar from "@/components/layout/Navbar";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight, LifeBuoy, Phone, MessageSquare, FileText, Video, BookOpen, Settings, HelpCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, MessageCircle, Phone, Wrench, Plus } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero, { HeroActions } from "@/components/layout/PageHero";
+import Reveal from "@/components/motion/Reveal";
+import { PHONE_DISPLAY, PHONE_NUMBER, whatsappLink } from "@/lib/contact";
 
-const supportCards = [
-  { icon: <Phone className="w-7 h-7" />, title: "Customer Care", desc: "Reach our support team for any product queries, complaints, or general assistance.", action: "Call: 0471 2334553", color: "bg-blue-50 text-blue-600 border-blue-100", href: undefined },
-  { icon: <Settings className="w-7 h-7" />, title: "Technical Support", desc: "Expert technical engineers available for troubleshooting and diagnostics.", action: "Email: tech@atl.in", color: "bg-primary/10 text-primary border-primary/20", href: undefined },
-  { icon: <FileText className="w-7 h-7" />, title: "Service Request", desc: "Submit a service request for repair, calibration, or on-site support visit.", action: "Submit Request", color: "bg-amber-50 text-amber-600 border-amber-100", href: undefined },
-  { icon: <LifeBuoy className="w-7 h-7" />, title: "Warranty Registration", desc: "Register your ATL product to activate warranty and receive priority support.", action: "Register Product", color: "bg-green-50 text-green-600 border-green-100", href: undefined },
-  { icon: <BookOpen className="w-7 h-7" />, title: "Documentation Center", desc: "Download product manuals, calibration certificates, and compliance documents.", action: "Browse Docs", color: "bg-purple-50 text-purple-600 border-purple-100", href: undefined },
-  { icon: <Video className="w-7 h-7" />, title: "Video Tutorials", desc: "Step-by-step video guides for installation, operation, and maintenance.", action: "Watch Videos", color: "bg-rose-50 text-rose-600 border-rose-100", href: undefined },
-  { icon: <MessageSquare className="w-7 h-7" />, title: "AMC Registration", desc: "Enroll your equipment in our Annual Maintenance Contract for priority coverage.", action: "Enroll in AMC", color: "bg-indigo-50 text-indigo-600 border-indigo-100", href: undefined },
-  { icon: <HelpCircle className="w-7 h-7" />, title: "FAQ", desc: "Find instant answers to common questions about our products and services.", action: "View FAQs", color: "bg-teal-50 text-teal-600 border-teal-100", href: undefined },
-  { icon: <Settings className="w-7 h-7" />, title: "Engineer Portal", desc: "Access the internal sales and service training portal for engineers.", action: "Engineer Login", color: "bg-zinc-800 text-white border-zinc-700", href: "/engineer/login" }
+export const metadata: Metadata = {
+  title: "Support | Accurate Trade Links",
+  description:
+    "Customer care, service requests, warranty registration, AMC enrolment and manuals for ATL weighing, billing and packaging equipment.",
+};
+
+const channels = [
+  {
+    icon: Phone,
+    title: "Customer care",
+    text: "Product queries, complaints or general help. Mon–Sat, 9 AM to 6 PM.",
+    action: "Call 0471 2334553",
+    href: "tel:04712334553",
+  },
+  {
+    icon: MessageCircle,
+    title: "WhatsApp a photo",
+    text: "Send a photo of the machine or the error on screen. It is often the fastest way to a fix.",
+    action: "Open WhatsApp",
+    href: whatsappLink("Hello ATL, I need help with my machine. Model / problem:"),
+    external: true,
+  },
+  {
+    icon: Wrench,
+    title: "Service request",
+    text: "Repair, calibration or an onsite visit. Tell us the model and your location.",
+    action: "Request a visit",
+    href: "/contact",
+  },
+];
+
+const more = [
+  {
+    title: "Warranty registration",
+    text: "Register your ATL product to activate warranty and priority support. Send the invoice and serial number.",
+    href: whatsappLink("Hello ATL, I would like to register my product warranty. Invoice no. / serial no.:"),
+    external: true,
+  },
+  {
+    title: "AMC enrolment",
+    text: "Put your equipment on an Annual Maintenance Contract for scheduled visits and priority cover.",
+    href: whatsappLink("Hello ATL, I would like to enrol my equipment in an AMC:"),
+    external: true,
+  },
+  {
+    title: "Manuals & certificates",
+    text: "Product manuals, calibration certificates and compliance documents for your model.",
+    href: whatsappLink("Hello ATL, please send me the manual / certificate for model:"),
+    external: true,
+  },
+  {
+    title: "Video tutorials",
+    text: "Step-by-step guides for installation, operation and maintenance.",
+    href: whatsappLink("Hello ATL, do you have a video guide for model:"),
+    external: true,
+  },
+  {
+    title: "Engineer portal",
+    text: "Sales and service training portal for ATL engineers.",
+    href: "/engineer/login",
+  },
 ];
 
 const faqs = [
-  { q: "How do I register my product warranty?", a: "Fill in the Warranty Registration form above or WhatsApp us the invoice and serial number of your product." },
+  { q: "How do I register my product warranty?", a: "WhatsApp us the invoice and serial number of your product, and we will register it for you." },
   { q: "What is your service coverage area?", a: "ATL provides service coverage across all districts of Kerala, with engineers based in Thiruvananthapuram, Kochi, Kozhikode, and Thrissur." },
   { q: "How long does a repair take?", a: "Standard repairs are completed within 24-48 hours. Complex repairs may take up to 5 working days with prior communication." },
   { q: "What is included in the AMC?", a: "Our AMC includes scheduled preventive maintenance visits, priority response, telephone support, and discounted spare parts." },
   { q: "Can I get same-day installation?", a: "Yes, same-day installation is available for products purchased before 2 PM on working days, subject to engineer availability in your area." },
 ];
 
+function Action({ href, external, className, children }: { href: string; external?: boolean; className: string; children: React.ReactNode }) {
+  if (external) {
+    return <a href={href} target="_blank" rel="noopener noreferrer" className={className}>{children}</a>;
+  }
+  if (href.startsWith("tel:")) return <a href={href} className={className}>{children}</a>;
+  return <Link href={href} className={className}>{children}</Link>;
+}
+
 export default function SupportPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="bg-secondary text-white pt-20 pb-16">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-white font-semibold">Support</span>
-          </div>
-          <h1 className="text-5xl font-extrabold text-white mb-4">Customer Support</h1>
-          <p className="text-zinc-300 text-lg font-light max-w-3xl">
-            ATL&apos;s dedicated support team is here to help you at every stage – from product registration to after-sales service.
-          </p>
+      <PageHero
+        crumbs={[{ label: "Support" }]}
+        title="Something not working?"
+        accent="We'll sort it out."
+        intro="Engineers across Kerala, Monday to Saturday, 9 AM to 6 PM. Emergency breakdown support is available 24/7."
+      >
+        <HeroActions
+          whatsapp={whatsappLink("Hello ATL, I need support with:")}
+          phoneHref={`tel:${PHONE_NUMBER}`}
+          phoneLabel={PHONE_DISPLAY}
+        />
+      </PageHero>
+
+      {/* Main ways to get help */}
+      <section className="py-20 lg:py-28">
+        <div className="container mx-auto">
+          <ul className="grid md:grid-cols-3 gap-5">
+            {channels.map((c, i) => (
+              <Reveal as="li" key={c.title} delay={i * 0.08}>
+                <Action
+                  href={c.href}
+                  external={c.external}
+                  className="group flex h-full flex-col rounded-3xl border border-secondary/10 bg-white p-7 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:border-secondary/25 hover:shadow-[0_20px_40px_-20px_rgba(18,26,43,0.25)]"
+                >
+                  <c.icon className="h-6 w-6 text-primary" />
+                  <h2 className="mt-8 text-2xl font-semibold tracking-[-0.03em] text-secondary">{c.title}</h2>
+                  <p className="mt-2 text-muted-foreground leading-relaxed">{c.text}</p>
+                  <span className="mt-auto pt-8 inline-flex items-center gap-1.5 font-semibold text-secondary transition-colors group-hover:text-primary">
+                    {c.action}
+                    <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </span>
+                </Action>
+              </Reveal>
+            ))}
+          </ul>
+
+          {/* Everything else */}
+          <ul className="mt-16 lg:mt-20 border-b border-secondary/15">
+            {more.map((m) => (
+              <li key={m.title} className="border-t border-secondary/15">
+                <Action
+                  href={m.href}
+                  external={m.external}
+                  className="group grid grid-cols-[1fr_auto] lg:grid-cols-[18rem_1fr_auto] items-center gap-x-8 gap-y-1 py-6"
+                >
+                  <span className="text-lg sm:text-xl font-semibold tracking-[-0.02em] text-secondary transition-colors group-hover:text-primary">
+                    {m.title}
+                  </span>
+                  <span className="col-start-1 row-start-2 lg:col-start-2 lg:row-start-1 text-[15px] text-muted-foreground">{m.text}</span>
+                  <ArrowUpRight className="row-span-2 lg:row-span-1 h-5 w-5 text-secondary transition-all group-hover:rotate-45 group-hover:text-primary" />
+                </Action>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 md:px-8 py-16">
-        <div className="bg-primary text-white rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 mb-16">
-          <div>
-            <div className="font-extrabold text-xl mb-1">Need Immediate Help?</div>
-            <p className="text-white/80 text-sm">Our support engineers are available Mon-Sat 9AM-6PM, Emergency support 24/7</p>
+      {/* FAQ */}
+      <section className="bg-muted py-20 lg:py-28">
+        <div className="container mx-auto grid lg:grid-cols-12 gap-10 lg:gap-14">
+          <div className="lg:col-span-5">
+            <Reveal className="lg:sticky lg:top-36">
+              <h2 className="font-display text-[clamp(2.1rem,4.2vw,3.5rem)] leading-[1.04] text-secondary">Questions we get every week.</h2>
+              <p className="mt-5 text-lg text-muted-foreground">
+                Not here?{" "}
+                <a href={whatsappLink("Hello ATL, I have a question:")} target="_blank" rel="noopener noreferrer" className="font-semibold text-secondary underline decoration-primary underline-offset-4 hover:text-primary">
+                  Ask us on WhatsApp
+                </a>
+                .
+              </p>
+            </Reveal>
           </div>
-          <div className="flex gap-3 flex-shrink-0">
-            <Button className="rounded-full bg-white text-primary font-bold hover:bg-zinc-100 gap-2">
-              <Phone className="w-4 h-4" /> Call Support
-            </Button>
-            <Button variant="outline" className="rounded-full border-white text-white hover:bg-white hover:text-primary font-bold gap-2 bg-transparent">
-              <MessageSquare className="w-4 h-4" /> WhatsApp
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-20">
-          {supportCards.map((card, i) => {
-            const CardContent = (
-              <div className={`h-full rounded-2xl border p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${card.color}`}>
-                <div className="mb-4">{card.icon}</div>
-                <h3 className="font-bold text-lg mb-2">{card.title}</h3>
-                <p className="text-sm opacity-80 mb-5 font-light">{card.desc}</p>
-                <Button size="sm" variant="outline" className="rounded-full font-bold border-current opacity-80 hover:opacity-100 text-current bg-transparent">
-                  {card.action}
-                </Button>
-              </div>
-            );
-
-            return card.href ? (
-              <Link href={card.href} key={i} className="block h-full">
-                {CardContent}
-              </Link>
-            ) : (
-              <div key={i} className="block h-full">
-                {CardContent}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-foreground mb-8 text-center">Frequently Asked Questions</h2>
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <details key={i} className="group bg-white border border-border rounded-2xl overflow-hidden">
-                <summary className="px-6 py-5 cursor-pointer font-bold text-foreground flex items-center justify-between list-none hover:text-primary">
-                  {faq.q}
-                  <span className="text-primary ml-4 flex-shrink-0">+</span>
+          <div className="lg:col-span-7 border-b border-secondary/15">
+            {faqs.map((f) => (
+              <details key={f.q} className="group border-t border-secondary/15">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-lg font-semibold tracking-[-0.02em] text-secondary transition-colors hover:text-primary [&::-webkit-details-marker]:hidden">
+                  {f.q}
+                  <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-secondary/15 transition-transform duration-300 group-open:rotate-45 group-open:border-primary group-open:text-primary">
+                    <Plus className="h-4 w-4" />
+                  </span>
                 </summary>
-                <div className="px-6 pb-5 text-muted-foreground font-light">{faq.a}</div>
+                <p className="-mt-1 pb-6 pr-14 text-muted-foreground leading-relaxed">{f.a}</p>
               </details>
             ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      <Footer />
     </main>
   );
 }

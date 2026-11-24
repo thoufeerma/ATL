@@ -10,7 +10,7 @@ export default function FloatingWhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 group"
+      className="floating-whatsapp fixed bottom-6 right-6 z-50 flex items-center gap-2 group"
     >
       <span className="hidden group-hover:flex items-center bg-white text-green-700 font-bold text-sm px-4 py-2 rounded-full shadow-lg border border-green-100 transition-all">
         Chat with us

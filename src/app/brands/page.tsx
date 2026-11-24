@@ -1,117 +1,124 @@
-import Navbar from "@/components/layout/Navbar";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight, ArrowRight, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
+import Reveal from "@/components/motion/Reveal";
+import SpotlightCard from "@/components/motion/SpotlightCard";
+
+export const metadata: Metadata = {
+  title: "Brands | Accurate Trade Links",
+  description: "Accurate Trade Links is an authorised distributor and service partner for leading weighing, printing and barcode brands.",
+};
 
 const brands = [
   {
     name: "CAS",
-    category: "Weighing Systems",
+    category: "Weighing systems",
     origin: "South Korea",
     desc: "CAS Corporation is a global leader in weighing technology, manufacturing precision retail, industrial, and laboratory scales used in over 100 countries.",
-    products: ["Retail Scales", "Platform Scales", "Jewellery Scales", "Lab Scales"],
-    color: "#E30613",
-    image: "https://images.unsplash.com/photo-1594897030264-ab7d87efc473?q=80&w=800"
+    products: ["Retail scales", "Platform scales", "Jewellery scales", "Lab scales"],
   },
   {
     name: "Citizen",
-    category: "Precision Instruments",
+    category: "Precision instruments",
     origin: "Japan",
     desc: "Citizen Systems produces enterprise-grade precision measuring instruments trusted by laboratories and industries worldwide since 1918.",
-    products: ["Precision Scales", "Balances", "Analytical Instruments"],
-    color: "#1F2937",
-    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?q=80&w=800"
+    products: ["Precision scales", "Balances", "Analytical instruments"],
   },
   {
     name: "Epson",
-    category: "Printing Solutions",
+    category: "Printing solutions",
     origin: "Japan",
     desc: "Epson is the world's #1 POS printer brand, delivering high-speed, reliable thermal printing solutions for retail, hospitality, and banking sectors.",
-    products: ["POS Printers", "Label Printers", "Barcode Printers"],
-    color: "#003399",
-    image: "https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=800"
+    products: ["POS printers", "Label printers", "Barcode printers"],
   },
   {
-    name: "Zebra Technologies",
-    category: "Enterprise Mobility",
+    name: "Zebra",
+    category: "Enterprise mobility",
     origin: "USA",
     desc: "Zebra Technologies is the world leader in barcode printing and enterprise mobility solutions, powering logistics, retail, and healthcare operations globally.",
-    products: ["Label Printers", "Barcode Scanners", "Mobile Computers"],
-    color: "#333333",
-    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=800"
+    products: ["Label printers", "Barcode scanners", "Mobile computers"],
   },
   {
     name: "Honeywell",
-    category: "Industrial Automation",
+    category: "Industrial automation",
     origin: "USA",
     desc: "Honeywell is a Fortune 100 technology and manufacturing company offering state-of-the-art barcode scanning and industrial automation solutions.",
-    products: ["Barcode Scanners", "Mobile Computers", "Industrial Sensors"],
-    color: "#E30613",
-    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800"
+    products: ["Barcode scanners", "Mobile computers", "Industrial sensors"],
   },
   {
     name: "TSC",
-    category: "Label Printing",
+    category: "Label printing",
     origin: "Taiwan",
     desc: "TSC Auto ID Technology produces durable, high-performance thermal label printers for industrial and commercial labelling applications.",
-    products: ["Industrial Label Printers", "Desktop Printers", "Mobile Printers"],
-    color: "#0066CC",
-    image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=800"
-  }
+    products: ["Industrial label printers", "Desktop printers", "Mobile printers"],
+  },
 ];
+
+// The other brands on the home page strip.
+const moreBrands = ["ATL Casio", "Essae", "Phoenix", "Mettler Toledo", "Scangle", "Yes Weigh", "Wepsol", "Contech", "Maxsell", "Adler"];
 
 export default function BrandsPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="bg-secondary text-white pt-20 pb-16">
-          <div className="container mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-              <Link href="/" className="hover:text-white">Home</Link><ChevronRight className="w-4 h-4" /><span className="text-white font-semibold">Brands</span>
-            </div>
-            <h1 className="text-5xl font-extrabold text-white mb-4">Our Brand Partners</h1>
-            <p className="text-zinc-300 text-lg font-light max-w-3xl">
-              ATL is an authorized distributor and service partner for the world&apos;s leading industrial technology brands.
-            </p>
-          </div>
-        </div>
+      <PageHero
+        crumbs={[{ label: "Brands" }]}
+        title="Authorised for the brands"
+        accent="your trade trusts."
+        intro="We are an authorised distributor and service partner for 50+ weighing, printing and barcode brands, so spares and warranty claims go through us."
+      />
 
-        <div className="container mx-auto px-4 md:px-8 py-16">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
-            {brands.map((brand) => (
-              <div key={brand.name} className="group bg-white border border-border rounded-3xl overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                <div className="relative h-52 overflow-hidden">
-                  <img src={brand.image} alt={brand.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <div className="text-3xl font-extrabold text-white">{brand.name}</div>
-                    <div className="text-white/70 text-sm font-medium">{brand.origin} · {brand.category}</div>
+      <section className="py-20 lg:py-28">
+        <div className="container mx-auto">
+          <ul className="grid md:grid-cols-2 gap-5">
+            {brands.map((b, i) => (
+              <Reveal as="li" key={b.name} delay={(i % 2) * 0.08}>
+                <SpotlightCard className="h-full rounded-3xl border border-secondary/10 bg-white transition-colors hover:border-secondary/25">
+                  <div className="relative z-20 flex h-full flex-col p-7 sm:p-10">
+                    <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+                      <span>{b.category}</span>
+                      <span>{b.origin}</span>
+                    </div>
+                    <h2 className="mt-8 font-display text-[clamp(3rem,6vw,5rem)] text-secondary">{b.name}</h2>
+                    <p className="mt-5 max-w-lg text-muted-foreground leading-relaxed">{b.desc}</p>
+                    <ul className="mt-6 flex flex-wrap gap-2">
+                      {b.products.map((p) => (
+                        <li key={p} className="rounded-full border border-secondary/15 px-3 py-1 text-sm text-secondary">{p}</li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={`/products?q=${encodeURIComponent(b.name)}`}
+                      className="group mt-8 inline-flex items-center gap-1.5 self-start pt-2 font-semibold text-secondary transition-colors hover:text-primary"
+                    >
+                      See {b.name} products
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </Link>
                   </div>
-                </div>
-                <div className="p-6">
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-5">{brand.desc}</p>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {brand.products.map(p => (
-                      <span key={p} className="px-2.5 py-1 text-xs font-semibold bg-muted rounded-full text-muted-foreground">{p}</span>
-                    ))}
-                  </div>
-                  <div className="flex gap-3">
-                    <Button size="sm" className="flex-1 rounded-full bg-primary text-white hover:bg-primary/90 font-bold">
-                      View Products <ArrowRight className="w-3 h-3 ml-1" />
-                    </Button>
-                    <Button size="sm" variant="outline" className="rounded-full border-border font-semibold gap-1">
-                      <ExternalLink className="w-3 h-3" /> Website
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                </SpotlightCard>
+              </Reveal>
             ))}
-          </div>
+          </ul>
+
+          <Reveal className="mt-20 lg:mt-28 border-t border-secondary/15 pt-10">
+            <h2 className="text-sm text-muted-foreground">Also supplied and serviced</h2>
+            <ul className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-[clamp(1.5rem,3vw,2.5rem)] font-semibold tracking-[-0.03em] text-secondary/40">
+              {moreBrands.map((name, i) => (
+                <li key={name} className="flex items-center gap-6">
+                  <Link href={`/products?q=${encodeURIComponent(name)}`} className="transition-colors hover:text-secondary">
+                    {name}
+                  </Link>
+                  {i < moreBrands.length - 1 && <span aria-hidden className="h-1.5 w-1.5 rotate-45 bg-primary/60" />}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
+      </section>
+
+      <Footer />
     </main>
   );
 }
-
-
-
-

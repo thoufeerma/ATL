@@ -3,7 +3,7 @@
 import { useFilterState } from "./FilterProvider";
 
 const SORT_OPTIONS = [
-  { label: "Featured", value: "" }, // Default/empty
+  { label: "Catalogue order", value: "" }, // Default: WooCommerce menu order
   { label: "Newest", value: "date-desc" },
   { label: "Price Low → High", value: "price-asc" },
   { label: "Price High → Low", value: "price-desc" },

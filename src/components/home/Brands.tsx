@@ -1,39 +1,38 @@
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import Marquee from "@/components/motion/Marquee";
+
+const brands = [
+  "ATL Casio", "Essae", "Phoenix", "CAS", "Mettler Toledo", "TSC",
+  "Scangle", "Yes Weigh", "Wepsol", "Contech", "Maxsell", "Adler",
+];
+
 export default function Brands() {
-  const brands = [
-    "ATL CASIO", "Scangle", "Yes Weigh", "Essae", "Phoenix", 
-    "Wepsol", "CONTECH", "Maxsell", "Adler", "Mettler Toledo", "CAS", "TSC"
-  ];
-
   return (
-    <section className="py-20 bg-white border-y border-border overflow-hidden">
-      <div className="container mx-auto px-4 md:px-8 text-center mb-12">
-        <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
-          Trusted Global Partners & Brands
-        </h2>
-      </div>
-      
-      <div className="relative w-full overflow-hidden opacity-70 flex group">
-        <div className="flex animate-marquee whitespace-nowrap w-max group-hover:pause">
-          {[...brands, ...brands, ...brands].map((brand, i) => (
-            <div key={i} className="inline-block px-8 md:px-12 text-2xl md:text-3xl font-extrabold text-slate-400 hover:text-primary transition-colors duration-300 cursor-pointer">
-              {brand}
-            </div>
+    <section className="bg-white border-b border-border">
+      <div className="container mx-auto flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10 py-10">
+        <Link
+          href="/brands"
+          className="group flex-shrink-0 lg:w-56 text-sm leading-snug text-muted-foreground hover:text-secondary transition-colors"
+        >
+          Authorised dealer for{" "}
+          <span className="whitespace-nowrap font-semibold text-secondary">
+            50+ brands
+            <ArrowUpRight className="inline w-4 h-4 ml-0.5 text-primary transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </span>
+        </Link>
+        <Marquee duration={45} className="flex-1 min-w-0">
+          {brands.map((b) => (
+            <span
+              key={b}
+              className="flex items-center gap-10 pr-10 text-2xl font-semibold tracking-[-0.03em] text-secondary/35 whitespace-nowrap"
+            >
+              {b}
+              <span aria-hidden className="h-1.5 w-1.5 rotate-45 bg-primary/60" />
+            </span>
           ))}
-        </div>
+        </Marquee>
       </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-33.333333%); }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-        .pause {
-          animation-play-state: paused !important;
-        }
-      `}} />
     </section>
   );
 }

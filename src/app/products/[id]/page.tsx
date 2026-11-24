@@ -1,8 +1,10 @@
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import ProductDetailClient, { type RelatedProduct } from "./ProductDetailClient";
 import { fetchWooCommerce } from "@/lib/woocommerce";
 import { decodeEntities } from "@/lib/html";
 import { getPricing } from "@/lib/product-utils";
+import { getProductDownloads, stripDescriptionFiles } from "@/lib/product-downloads";
 
 function extractSpecs(metaData: any[] = []) {
   const specMeta = metaData.find((m: any) => m.key === "technical_specifications");
@@ -14,7 +16,7 @@ async function getRelatedProducts(product: any): Promise<RelatedProduct[]> {
   if (!category?.id) return [];
   try {
     const fetchFor = (catId: number): Promise<any[]> =>
-      fetchWooCommerce(`products?category=${catId}&exclude=${product.id}&per_page=4&status=publish`);
+      fetchWooCommerce(`products?category=${catId}&exclude=${product.id}&per_page=4&status=publish&orderby=menu_order&order=asc`);
 
     let items = await fetchFor(category.id);
     // Too few siblings in a narrow sub-category: widen to its parent category.
@@ -63,6 +65,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             Browse All Products
           </a>
         </div>
+        <Footer />
       </main>
     );
   }
@@ -80,7 +83,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         })
       : Promise.resolve([]);
 
-  const [wcVariations, related] = await Promise.all([variationsPromise, getRelatedProducts(product)]);
+  const [wcVariations, related, downloads] = await Promise.all([
+    variationsPromise,
+    getRelatedProducts(product),
+    getProductDownloads(product),
+  ]);
 
   const variations = (wcVariations as any[]).map((v: any) => ({
     ...v,
@@ -90,7 +97,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   return (
     <main className="min-h-screen bg-muted/30">
       <Navbar />
-      <ProductDetailClient product={product} variations={variations} related={related} />
+      {/* File links in the description are listed under "Brochures & downloads" instead. */}
+      <ProductDetailClient
+        product={{
+          ...product,
+          description: stripDescriptionFiles(product.description),
+          short_description: stripDescriptionFiles(product.short_description),
+        }}
+        variations={variations}
+        related={related}
+        downloads={downloads}
+      />
+      <Footer />
     </main>
   );
 }

@@ -1,151 +1,100 @@
-import Navbar from "@/components/layout/Navbar";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronRight, Calendar, User, ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
+import Reveal from "@/components/motion/Reveal";
+import PostCard from "@/components/blog/PostCard";
+import { BLOG_CATEGORIES, BLOG_POSTS, categorySlug } from "@/lib/blog-posts";
 
-const posts = [
-  {
-    id: 1,
-    title: "How to Choose the Right Weighing Scale for Your Supermarket",
-    excerpt: "From trade certification to capacity and accuracy – a complete buyer's guide to retail weighing scales.",
-    category: "Buying Guides",
-    author: "ATL Team",
-    date: "May 20, 2026",
-    image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200",
-    readTime: "5 min read"
-  },
-  {
-    id: 2,
-    title: "Understanding OIML and NABL Certification for Industrial Scales",
-    excerpt: "What legal-for-trade certification means and why it matters for businesses in India.",
-    category: "Product Guides",
-    author: "ATL Team",
-    date: "May 12, 2026",
-    image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?q=80&w=1200",
-    readTime: "7 min read"
-  },
-  {
-    id: 3,
-    title: "Top 5 Barcode Scanner Brands for Retail Businesses in 2026",
-    excerpt: "Zebra, Honeywell, and more – comparing the best enterprise barcode scanners for modern retail.",
-    category: "Industry News",
-    author: "ATL Team",
-    date: "May 5, 2026",
-    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=1200",
-    readTime: "6 min read"
-  },
-  {
-    id: 4,
-    title: "Preventive Maintenance Tips for Your Billing and POS System",
-    excerpt: "Simple maintenance steps to extend the life of your POS system and avoid costly repairs.",
-    category: "Maintenance Tips",
-    author: "ATL Team",
-    date: "April 28, 2026",
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200",
-    readTime: "4 min read"
-  },
-  {
-    id: 5,
-    title: "ATL Completes 50-Point Supermarket Installation in Kochi",
-    excerpt: "A behind-the-scenes look at our largest supermarket outfitting project – 50 billing counters in 72 hours.",
-    category: "Case Studies",
-    author: "ATL Team",
-    date: "April 15, 2026",
-    image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1200",
-    readTime: "8 min read"
-  },
-  {
-    id: 6,
-    title: "AI-Powered Scales: The Future of Retail Automation",
-    excerpt: "Exploring how AI-powered pricing and recognition scales are revolutionizing modern grocery retail.",
-    category: "Technology Updates",
-    author: "ATL Team",
-    date: "April 5, 2026",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200",
-    readTime: "6 min read"
-  }
-];
-
-const categories = ["All", "Product Guides", "Industry News", "Technology Updates", "Buying Guides", "Maintenance Tips", "Case Studies"];
-
-const catColors: Record<string, string> = {
-  "Product Guides": "bg-blue-100 text-blue-700",
-  "Industry News": "bg-green-100 text-green-700",
-  "Technology Updates": "bg-purple-100 text-purple-700",
-  "Buying Guides": "bg-amber-100 text-amber-700",
-  "Maintenance Tips": "bg-teal-100 text-teal-700",
-  "Case Studies": "bg-primary/10 text-primary"
+export const metadata: Metadata = {
+  title: "Blog | Accurate Trade Links",
+  description: "Buying guides, maintenance tips, case studies and industry news on weighing, billing and packaging equipment.",
 };
 
-export default function BlogPage() {
+export default async function BlogPage({ searchParams }: { searchParams: Promise<{ cat?: string }> }) {
+  const { cat } = await searchParams;
+  const activeCategory = BLOG_CATEGORIES.find((c) => categorySlug(c) === cat) ?? null;
+  const posts = activeCategory ? BLOG_POSTS.filter((p) => p.category === activeCategory) : BLOG_POSTS;
+  const [featured, ...rest] = activeCategory ? [null, ...posts] : posts;
+
+  const chip = (on: boolean) =>
+    `rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+      on ? "border-secondary bg-secondary text-white" : "border-secondary/15 bg-white text-secondary hover:border-secondary/40"
+    }`;
+
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="bg-secondary text-white pt-20 pb-16">
-          <div className="container mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-              <Link href="/" className="hover:text-white">Home</Link><ChevronRight className="w-4 h-4" /><span className="text-white font-semibold">Blog</span>
-            </div>
-            <h1 className="text-5xl font-extrabold text-white mb-4">Resources & Insights</h1>
-            <p className="text-zinc-300 text-lg font-light max-w-3xl">Product guides, industry news, maintenance tips, and technology updates from the ATL team.</p>
-          </div>
-        </div>
+      <PageHero
+        crumbs={[{ label: "Blog" }]}
+        title="Guides, tips and"
+        accent="notes from the field."
+        intro="Buying guides, maintenance tips and case studies from the people who install and repair these machines every day."
+      />
 
-        <div className="container mx-auto px-4 md:px-8 py-16">
-          {/* Category Filters */}
-          <div className="flex flex-wrap gap-2 mb-10">
-            {categories.map(c => (
-              <button key={c} className={`px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${c === "All" ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary hover:text-primary"}`}>
+      <section className="bg-muted py-16 lg:py-24">
+        <div className="container mx-auto">
+          <nav aria-label="Blog categories" className="flex flex-wrap gap-2">
+            <Link href="/blog" scroll={false} aria-current={!activeCategory ? "page" : undefined} className={chip(!activeCategory)}>
+              All
+            </Link>
+            {BLOG_CATEGORIES.map((c) => (
+              <Link
+                key={c}
+                href={`/blog?cat=${categorySlug(c)}`}
+                scroll={false}
+                aria-current={activeCategory === c ? "page" : undefined}
+                className={chip(activeCategory === c)}
+              >
                 {c}
-              </button>
-            ))}
-          </div>
-
-          {/* Featured Post */}
-          <div className="mb-10 group rounded-3xl overflow-hidden bg-white border border-border shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <div className="grid grid-cols-1 lg:grid-cols-2">
-              <div className="relative h-72 lg:h-auto overflow-hidden">
-                <img src={posts[0].image} alt={posts[0].title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute top-4 left-4"><span className={`px-3 py-1 rounded-full text-xs font-bold ${catColors[posts[0].category]}`}>{posts[0].category}</span></div>
-              </div>
-              <div className="p-10 flex flex-col justify-center">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                  <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{posts[0].date}</span>
-                  <span className="flex items-center gap-1"><User className="w-4 h-4" />{posts[0].author}</span>
-                  <span>{posts[0].readTime}</span>
-                </div>
-                <h2 className="text-2xl font-extrabold text-foreground mb-4 group-hover:text-primary transition-colors">{posts[0].title}</h2>
-                <p className="text-muted-foreground font-light mb-6">{posts[0].excerpt}</p>
-                <Link href={`/blog/${posts[0].id}`} className="flex items-center gap-2 text-primary font-bold hover:underline underline-offset-4">
-                  Read Article <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {posts.slice(1).map(post => (
-              <Link key={post.id} href={`/blog/${post.id}`} className="group bg-white border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
-                <div className="relative h-52 overflow-hidden">
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute top-3 left-3"><span className={`px-2.5 py-1 rounded-full text-xs font-bold ${catColors[post.category]}`}>{post.category}</span></div>
-                </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{post.date}</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                  <h3 className="font-extrabold text-foreground text-lg mb-2 group-hover:text-primary transition-colors flex-1">{post.title}</h3>
-                  <p className="text-sm text-muted-foreground font-light line-clamp-2">{post.excerpt}</p>
-                </div>
               </Link>
             ))}
-          </div>
+          </nav>
+
+          {featured && (
+            <Reveal className="mt-10">
+              <Link
+                href={`/blog/${featured.id}`}
+                className="group grid lg:grid-cols-12 gap-2.5 rounded-3xl bg-white p-2.5 transition-shadow duration-300 hover:shadow-[0_30px_60px_-30px_rgba(18,26,43,0.3)]"
+              >
+                <div className="relative lg:col-span-7 aspect-[16/10] overflow-hidden rounded-2xl bg-secondary">
+                  <img
+                    src={featured.image}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+                <div className="lg:col-span-5 flex flex-col p-5 sm:p-8">
+                  <span className="text-sm text-muted-foreground">
+                    {featured.category} <span className="mx-1.5 text-secondary/20">·</span> {featured.readTime}
+                  </span>
+                  <h2 className="mt-4 font-display text-[clamp(1.9rem,3vw,2.6rem)] leading-[1.08] text-secondary">{featured.title}</h2>
+                  <p className="mt-4 text-muted-foreground leading-relaxed">{featured.excerpt}</p>
+                  <div className="mt-8 lg:mt-auto flex items-center justify-between pt-4 text-sm text-muted-foreground">
+                    {featured.date}
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-secondary transition-colors group-hover:text-primary">
+                      Read article
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:rotate-45" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </Reveal>
+          )}
+
+          <ul className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {rest.map((post, i) => post && (
+              <Reveal as="li" key={post.id} delay={(i % 3) * 0.08}>
+                <PostCard post={post} />
+              </Reveal>
+            ))}
+          </ul>
         </div>
+      </section>
+
+      <Footer />
     </main>
   );
 }
-
-
-
-

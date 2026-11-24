@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 // Self-hosted fonts: the build no longer downloads from Google Fonts, whose
 // "/l/font?kit=" URLs break Turbopack's next/font/google loader on Vercel.
-import "@fontsource-variable/dm-sans";
-import "@fontsource-variable/manrope";
+import "@fontsource-variable/geist/wght.css";
 import "./globals.css";
 import FloatingWhatsApp from "@/components/layout/FloatingWhatsApp";
 

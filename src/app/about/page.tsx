@@ -1,14 +1,15 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
-import Link from "next/link";
-import { ChevronRight, Award, Users, Clock, Globe, Target, Heart } from "lucide-react";
+import Footer from "@/components/layout/Footer";
+import PageHero from "@/components/layout/PageHero";
+import Reveal from "@/components/motion/Reveal";
+import CountUp from "@/components/motion/CountUp";
 
-
-const team = [
-  { name: "Managing Director", role: "Leadership", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400" },
-  { name: "Head of Sales", role: "Sales and Business Development", image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=400" },
-  { name: "Chief Technical Officer", role: "Engineering and Service", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400" },
-  { name: "Head of Support", role: "Customer Care", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400" }
-];
+export const metadata: Metadata = {
+  title: "About us | Accurate Trade Links",
+  description:
+    "Since 2003, Accurate Trade Links has sold, installed and serviced weighing, billing and packaging equipment for businesses and institutions across Kerala.",
+};
 
 const milestones = [
   { year: "2003", text: "ATL founded in Thiruvananthapuram with a vision to provide precision weighing solutions." },
@@ -16,127 +17,133 @@ const milestones = [
   { year: "2012", text: "Launched AMC division, now serving over 5,000 active contracts across the state." },
   { year: "2016", text: "Added billing, barcode, and POS solutions. Became Epson and Honeywell partner." },
   { year: "2020", text: "Expanded to packaging, filling, and labelling machinery, now a full industrial solutions provider." },
-  { year: "2024", text: "Reached 1,00,000 customers milestone. Launched digital-first service and support platform." }
+  { year: "2024", text: "Reached 1,00,000 customers milestone. Launched digital-first service and support platform." },
 ];
 
-const stats = [
-  { icon: <Clock className="w-5 h-5" />, label: "25+ Years", desc: "Industry Experience" },
-  { icon: <Users className="w-5 h-5" />, label: "100K+", desc: "Customers Served" },
-  { icon: <Globe className="w-5 h-5" />, label: "14 Districts", desc: "Kerala Coverage" },
-  { icon: <Award className="w-5 h-5" />, label: "50+ Brands", desc: "Authorized Partner" }
-];
-
-const mvv = [
-  { icon: <Target className="w-8 h-8" />, title: "Our Mission", text: "To empower businesses with accurate measurement and intelligent automation tools that drive efficiency, compliance, and profitability." },
-  { icon: <Globe className="w-8 h-8" />, title: "Our Vision", text: "To be the most trusted industrial technology solutions provider in South India, known for reliability, innovation, and exceptional after-sales support." },
-  { icon: <Heart className="w-8 h-8" />, title: "Our Values", text: "Precision. Integrity. Innovation. Customer First. We stand behind every product and service we deliver." }
+const principles = [
+  {
+    title: "Our mission",
+    text: "To empower businesses with accurate measurement and intelligent automation tools that drive efficiency, compliance, and profitability.",
+  },
+  {
+    title: "Our vision",
+    text: "To be the most trusted industrial technology solutions provider in South India, known for reliability, innovation, and exceptional after-sales support.",
+  },
+  {
+    title: "Our values",
+    text: "Precision. Integrity. Innovation. Customer first. We stand behind every product and service we deliver.",
+  },
 ];
 
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
-      <div className="bg-secondary text-white pt-20 pb-16">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <ChevronRight className="w-4 h-4" />
-            <span className="text-white font-semibold">About Us</span>
+      <PageHero
+        crumbs={[{ label: "About us" }]}
+        title="Weighing Kerala's trade"
+        accent="since 2003."
+        intro="We sell, install and service weighing, billing and packaging equipment for shops, hospitals, factories and government offices across Kerala."
+      >
+        <dl className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-y-8 border-t border-white/10 pt-8">
+          <div className="pr-4">
+            <dd className="font-display text-[2rem] sm:text-4xl lg:text-5xl">2003</dd>
+            <dt className="mt-2 text-sm text-white/55">Founded in Thiruvananthapuram</dt>
           </div>
-          <h1 className="text-5xl font-extrabold text-white mb-4">About Accurate Trade Links</h1>
-          <p className="text-zinc-300 text-lg font-light max-w-3xl">
-            Over 25 years of delivering precision weighing, billing, and industrial automation solutions to businesses, institutions, and government organisations across Kerala.
-          </p>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 md:px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
-          <div>
-            <h2 className="text-sm font-bold text-primary uppercase tracking-widest mb-4">Our Story</h2>
-            <h3 className="text-4xl font-extrabold text-foreground mb-6">Built on Precision, Driven by Trust</h3>
-            <p className="text-muted-foreground text-lg font-light mb-5 leading-relaxed">
-              Accurate Trade Links (ATL) was founded in 2003 with a simple mission: to provide Kerala&apos;s businesses and institutions with reliable, accurate, and affordable weighing and measurement solutions.
-            </p>
-            <p className="text-muted-foreground font-light mb-8 leading-relaxed">
-              Today, ATL serves over 1,00,000 customers across retail, healthcare, manufacturing, logistics, government, and education sectors, providing everything from a simple retail scale to complete factory automation systems.
-            </p>
-            <div className="grid grid-cols-2 gap-6">
-              {stats.map((s, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl border border-border">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">{s.icon}</div>
-                  <div><div className="font-extrabold text-foreground text-lg">{s.label}</div><div className="text-xs text-muted-foreground font-medium">{s.desc}</div></div>
-                </div>
-              ))}
-            </div>
+          <div className="pl-4 sm:pl-6 border-l border-white/10">
+            <dd className="font-display text-[2rem] sm:text-4xl lg:text-5xl"><CountUp to={100000} suffix="+" /></dd>
+            <dt className="mt-2 text-sm text-white/55">Customers served</dt>
           </div>
-          <div className="relative">
-            <div className="rounded-3xl overflow-hidden shadow-2xl h-96">
-              <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200" alt="ATL Showroom" className="w-full h-full object-cover" />
-            </div>
-            <div className="absolute -bottom-6 -left-6 bg-primary text-white rounded-2xl p-6 shadow-xl">
-              <div className="text-4xl font-extrabold">2003</div>
-              <div className="text-white/80 text-sm font-medium">Year Founded</div>
-            </div>
+          <div className="lg:pl-6 lg:border-l lg:border-white/10">
+            <dd className="font-display text-[2rem] sm:text-4xl lg:text-5xl"><CountUp to={14} /></dd>
+            <dt className="mt-2 text-sm text-white/55">Districts covered</dt>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-24">
-          {mvv.map((item, i) => (
-            <div key={i} className="bg-white border border-border rounded-2xl p-8 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-5">{item.icon}</div>
-              <h3 className="text-xl font-extrabold text-foreground mb-3">{item.title}</h3>
-              <p className="text-muted-foreground font-light leading-relaxed">{item.text}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mb-24">
-          <h2 className="text-3xl font-extrabold text-foreground text-center mb-12">Our Journey</h2>
-          <div className="relative">
-            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-border transform md:-translate-x-px" />
-            <div className="space-y-8">
-              {milestones.map((m, i) => (
-                <div key={i} className={`flex items-center gap-8 ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
-                  <div className={`hidden md:block md:w-1/2 ${i % 2 === 0 ? "text-right" : "text-left"}`}>
-                    <div className="bg-white border border-border rounded-2xl p-5 inline-block shadow-sm">
-                      <p className="text-muted-foreground text-sm font-light">{m.text}</p>
-                    </div>
-                  </div>
-                  <div className="relative flex-shrink-0">
-                    <div className="w-16 h-16 rounded-full bg-primary text-white font-extrabold text-sm flex items-center justify-center shadow-lg shadow-primary/20 z-10 relative">
-                      {m.year}
-                    </div>
-                  </div>
-                  <div className="md:hidden flex-1">
-                    <div className="bg-white border border-border rounded-2xl p-4">
-                      <p className="text-muted-foreground text-sm font-light">{m.text}</p>
-                    </div>
-                  </div>
-                  <div className={`hidden md:block md:w-1/2 ${i % 2 === 1 ? "text-right" : "text-left"}`} />
-                </div>
-              ))}
-            </div>
+          <div className="pl-4 sm:pl-6 border-l border-white/10">
+            <dd className="font-display text-[2rem] sm:text-4xl lg:text-5xl"><CountUp to={50} suffix="+" /></dd>
+            <dt className="mt-2 text-sm text-white/55">Brands supplied</dt>
           </div>
-        </div>
+        </dl>
+      </PageHero>
 
-        <div>
-          <h2 className="text-3xl font-extrabold text-foreground text-center mb-12">Leadership Team</h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {team.map((member, i) => (
-              <div key={i} className="group bg-white border border-border rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 text-center">
-                <div className="relative h-56 overflow-hidden bg-muted">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                </div>
-                <div className="p-5">
-                  <h3 className="font-extrabold text-foreground text-lg">{member.name}</h3>
-                  <p className="text-sm text-muted-foreground font-medium mt-1">{member.role}</p>
-                </div>
-              </div>
+      {/* Story */}
+      <section className="py-20 lg:py-28">
+        <div className="container mx-auto">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
+            <Reveal className="lg:col-span-5">
+              <h2 className="font-display text-[clamp(2.1rem,4.2vw,3.5rem)] leading-[1.04] text-secondary">
+                Built on precision, kept by trust.
+              </h2>
+            </Reveal>
+            <Reveal className="lg:col-span-7 space-y-6 text-lg sm:text-xl leading-relaxed text-muted-foreground" delay={0.08}>
+              <p>
+                <span className="font-semibold text-secondary">Accurate Trade Links was founded in 2003</span> with a simple
+                mission: to give Kerala&apos;s businesses and institutions reliable, accurate and affordable weighing and
+                measurement equipment.
+              </p>
+              <p>
+                Today we serve over 1,00,000 customers across retail, healthcare, manufacturing, logistics, government and
+                education, supplying everything from a single retail scale to a complete packing line.
+              </p>
+            </Reveal>
+          </div>
+
+          <Reveal className="mt-14 lg:mt-20">
+            <div className="relative aspect-[4/3] sm:aspect-[21/9] overflow-hidden rounded-2xl bg-secondary">
+              <img
+                src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2000"
+                alt="The ATL showroom"
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Mission, vision, values */}
+      <section className="bg-muted py-20 lg:py-28">
+        <div className="container mx-auto">
+          <ol className="grid md:grid-cols-3 gap-10 md:gap-8">
+            {principles.map((p, i) => (
+              <Reveal as="li" key={p.title} delay={i * 0.08} className="border-t border-secondary/15 pt-6">
+                <span className="text-sm font-semibold tabular-nums text-primary">0{i + 1}</span>
+                <h3 className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-secondary">{p.title}</h3>
+                <p className="mt-3 text-muted-foreground leading-relaxed">{p.text}</p>
+              </Reveal>
             ))}
-          </div>
+          </ol>
         </div>
-      </div>
+      </section>
+
+      {/* Journey */}
+      <section className="relative isolate overflow-hidden bg-[#080c15] py-20 lg:py-32 text-white">
+        <div aria-hidden className="absolute inset-0 -z-10 bg-dot-grid [mask-image:radial-gradient(ellipse_50%_70%_at_85%_40%,#000,transparent)]" />
+        <div aria-hidden className="absolute -right-32 top-1/3 -z-10 h-[420px] w-[420px] rounded-full bg-primary/20 blur-[140px]" />
+        <div className="container mx-auto grid lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4">
+            <Reveal className="lg:sticky lg:top-36">
+              <h2 className="font-display text-[clamp(2.1rem,4.2vw,3.5rem)] leading-[1.04]">Twenty-odd years, one counter at a time.</h2>
+            </Reveal>
+          </div>
+          <ol className="lg:col-span-8 border-b border-white/10">
+            {milestones.map((m, i) => (
+              <Reveal
+                as="li"
+                key={m.year}
+                delay={i * 0.04}
+                className="group grid grid-cols-[5.5rem_1fr] sm:grid-cols-[10rem_1fr] items-baseline gap-4 border-t border-white/10 py-7 sm:py-9"
+              >
+                <span className="font-display text-4xl sm:text-6xl tabular-nums text-white/25 transition-colors duration-300 group-hover:text-primary">
+                  {m.year}
+                </span>
+                <p className="text-white/70 text-base sm:text-lg leading-relaxed">{m.text}</p>
+              </Reveal>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <Footer />
     </main>
   );
 }

@@ -4,10 +4,9 @@ import Hero from "@/components/home/Hero";
 import Brands from "@/components/home/Brands";
 import Categories from "@/components/home/Categories";
 import IndustriesServed from "@/components/home/IndustriesServed";
-import WhyATL from "@/components/home/WhyATL";
+import HowWeWork from "@/components/home/HowWeWork";
 import Testimonials from "@/components/home/Testimonials";
 import BlogSection from "@/components/home/BlogSection";
-import ContactCTA from "@/components/home/ContactCTA";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -28,11 +27,10 @@ export default function Home() {
       <Hero />
       <Brands />
       <Categories />
+      <HowWeWork />
       <IndustriesServed />
-      <WhyATL />
       <Testimonials />
       <BlogSection />
-      <ContactCTA />
       <Footer />
     </main>
   );
