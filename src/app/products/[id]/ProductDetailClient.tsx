@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Banknote,
+  BookOpen,
   ChevronRight,
   Download,
   FileText,
@@ -398,12 +399,22 @@ export default function ProductDetailClient({
             {downloads.length > 0 && (
               <a
                 href={downloads.length === 1 ? downloads[0].url : "#downloads"}
-                {...(downloads.length === 1 ? { target: "_blank", rel: "noopener noreferrer", download: true } : {})}
+                {...(downloads.length === 1
+                  ? { target: "_blank", rel: "noopener noreferrer", ...(downloads[0].image ? {} : { download: true }) }
+                  : {})}
                 className={`group mt-3 flex h-14 w-full items-center justify-center gap-2.5 rounded-full border-2 border-secondary bg-white px-6 text-base font-bold text-secondary transition-colors hover:bg-secondary hover:text-white ${focusRing}`}
               >
-                <Download className="h-5 w-5 transition-transform group-hover:translate-y-0.5" />
-                {downloads.length === 1 ? "Download brochure" : `Download brochures (${downloads.length})`}
-                {downloads.length === 1 && (
+                {downloads.length === 1 && downloads[0].image ? (
+                  <BookOpen className="h-5 w-5" />
+                ) : (
+                  <Download className="h-5 w-5 transition-transform group-hover:translate-y-0.5" />
+                )}
+                {downloads.length > 1
+                  ? `Catalogues & brochures (${downloads.length})`
+                  : downloads[0].image
+                    ? "View product catalogue"
+                    : "Download brochure"}
+                {downloads.length === 1 && !downloads[0].image && (
                   <span className="rounded-md bg-secondary/10 px-1.5 py-0.5 text-xs font-bold text-secondary transition-colors group-hover:bg-white/15 group-hover:text-white">
                     {downloads[0].type}
                   </span>
@@ -473,7 +484,7 @@ export default function ProductDetailClient({
 
             {downloads.length > 0 && (
               <section id="downloads" className="scroll-mt-32">
-                <h2 className="font-heading text-2xl font-extrabold tracking-tight text-foreground">Brochures &amp; downloads</h2>
+                <h2 className="font-heading text-2xl font-extrabold tracking-tight text-foreground">Catalogues &amp; brochures</h2>
                 <ul className="mt-5 grid sm:grid-cols-2 gap-4">
                   {downloads.map((d) => (
                     <li key={d.url}>
@@ -481,20 +492,40 @@ export default function ProductDetailClient({
                         href={d.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        download
+                        {...(d.image ? {} : { download: true })}
                         className={`group flex h-full items-center gap-5 rounded-2xl border border-border bg-white p-5 sm:p-6 transition-all hover:border-foreground/25 hover:shadow-[0_18px_36px_-20px_rgba(31,41,55,0.4)] ${focusRing}`}
                       >
-                        {/* File glyph with its type */}
-                        <span className="relative flex h-[4.5rem] w-14 flex-shrink-0 items-center justify-center rounded-xl border border-border bg-muted/50">
-                          <FileText className="h-7 w-7 text-secondary/60" strokeWidth={1.5} />
-                          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-md bg-primary px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">
-                            {d.type}
+                        {d.image ? (
+                          // Catalogue page: a small preview of the page itself
+                          <span className="relative h-24 w-[4.5rem] flex-shrink-0 overflow-hidden rounded-xl border border-border bg-muted/50">
+                            <img
+                              src={d.url}
+                              alt=""
+                              loading="lazy"
+                              className="h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                            />
                           </span>
-                        </span>
+                        ) : (
+                          /* File glyph with its type */
+                          <span className="relative flex h-[4.5rem] w-14 flex-shrink-0 items-center justify-center rounded-xl border border-border bg-muted/50">
+                            <FileText className="h-7 w-7 text-secondary/60" strokeWidth={1.5} />
+                            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-md bg-primary px-2 py-0.5 text-[11px] font-bold tracking-wide text-white">
+                              {d.type}
+                            </span>
+                          </span>
+                        )}
                         <span className="min-w-0 flex-1">
                           <span className="block text-lg font-bold leading-snug text-foreground line-clamp-2">{d.name}</span>
-                          <span className="mt-3 inline-flex h-11 items-center gap-2 rounded-full bg-secondary px-5 text-sm font-bold text-white transition-colors group-hover:bg-primary">
-                            <Download className="h-4 w-4 transition-transform group-hover:translate-y-0.5" /> Download
+                          <span className="mt-3 inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-full bg-secondary px-5 text-sm font-bold text-white transition-colors group-hover:bg-primary">
+                            {d.image ? (
+                              <>
+                                <BookOpen className="h-4 w-4" /> View catalogue
+                              </>
+                            ) : (
+                              <>
+                                <Download className="h-4 w-4 transition-transform group-hover:translate-y-0.5" /> Download
+                              </>
+                            )}
                           </span>
                         </span>
                       </a>
