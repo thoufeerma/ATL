@@ -47,6 +47,8 @@ async function getRelatedProducts(product: any): Promise<RelatedProduct[]> {
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // Product IDs are numbers. Anything else could steer the request to another WooCommerce endpoint.
+  if (!/^\d+$/.test(id)) notFound();
 
   let wcProduct = null;
   try {

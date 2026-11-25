@@ -3,6 +3,11 @@ export const getWooCommerceApiUrl = (endpoint: string) => {
   if (!url) {
     throw new Error('NEXT_PUBLIC_WOOCOMMERCE_URL is not defined');
   }
+  // The store key can read customer data, so never let an endpoint climb out of its path.
+  const path = endpoint.split('?')[0];
+  if (/\.\.|%2e|\\/i.test(path)) {
+    throw new Error('Invalid WooCommerce endpoint');
+  }
   const baseUrl = url.endsWith('/') ? url.slice(0, -1) : url;
   return `${baseUrl}/wp-json/wc/v3/${endpoint}`;
 };

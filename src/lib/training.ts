@@ -142,7 +142,7 @@ export const getTraining = async (): Promise<TrainingItem[]> => {
 
 export const getTrainingBySlug = async (slug: string): Promise<TrainingItem | null> => {
   try {
-    const rawItems = await fetchWordPress(`wp/v2/training-content?slug=${slug}&per_page=1`);
+    const rawItems = await fetchWordPress(`wp/v2/training-content?slug=${encodeURIComponent(slug)}&per_page=1`);
     if (!rawItems || rawItems.length === 0) return null;
 
     const [deptMap, catMap] = await Promise.all([
