@@ -6,6 +6,8 @@ import { fetchWooCommerce } from "@/lib/woocommerce";
 import { decodeEntities } from "@/lib/html";
 import { getPricing } from "@/lib/product-utils";
 import { getProductDownloads, stripDescriptionFiles } from "@/lib/product-downloads";
+import { getWooCommerceCategories } from "@/lib/woocommerce-categories";
+import { getDescendantSlugs } from "@/lib/category-data";
 
 function extractSpecs(metaData: any[] = []) {
   const specMeta = metaData.find((m: any) => m.key === "technical_specifications");
@@ -45,6 +47,17 @@ async function getRelatedProducts(product: any): Promise<RelatedProduct[]> {
   }
 }
 
+// The Weighing Scales category (WordPress slug "weighing", formerly "weighing-scale") and every category below it.
+const WEIGHING_ROOTS = ["weighing", "weighing-scale"];
+
+async function inWeighingScales(product: any): Promise<boolean> {
+  const slugs: string[] = (product.categories ?? []).map((c: any) => c.slug);
+  if (!slugs.length) return false;
+  const categories = await getWooCommerceCategories();
+  const weighing = new Set(WEIGHING_ROOTS.flatMap((root) => [root, ...getDescendantSlugs(categories, root)]));
+  return slugs.some((s) => weighing.has(s));
+}
+
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   // Product IDs are numbers. Anything else could steer the request to another WooCommerce endpoint.
@@ -76,10 +89,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         })
       : Promise.resolve([]);
 
-  const [wcVariations, related, downloads] = await Promise.all([
+  const [wcVariations, related, downloads, isWeighingScale] = await Promise.all([
     variationsPromise,
     getRelatedProducts(product),
     getProductDownloads(product),
+    inWeighingScales(product),
   ]);
 
   const variations = (wcVariations as any[]).map((v: any) => ({
@@ -100,6 +114,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         variations={variations}
         related={related}
         downloads={downloads}
+        isWeighingScale={isWeighingScale}
       />
       <Footer />
     </main>

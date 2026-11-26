@@ -270,8 +270,9 @@ body {
   }
 }
 
-/* The open mobile menu has its own WhatsApp button, so the floating one steps aside. */
-html[data-menu-open] .floating-whatsapp {
+/* The open mobile menu and the enquiry dialog have their own WhatsApp button, so the floating one steps aside. */
+html[data-menu-open] .floating-whatsapp,
+html[data-dialog-open] .floating-whatsapp {
   display: none;
 }
 

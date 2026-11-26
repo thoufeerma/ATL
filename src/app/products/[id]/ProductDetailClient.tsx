@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   ArrowRight,
+  BadgeCheck,
   Banknote,
   BookOpen,
   ChevronRight,
@@ -28,6 +29,7 @@ import { PHONE_DISPLAY, PHONE_NUMBER, whatsappLink } from "@/lib/contact";
 import { formatINR, getPricing, sortOptions } from "@/lib/product-utils";
 import { iconFor } from "@/lib/product-icon";
 import type { ProductDownload } from "@/lib/product-downloads";
+import { WhatsAppEnquiryDialog, type EnquiryLine } from "@/components/products/WhatsAppEnquiryDialog";
 
 export interface RelatedProduct {
   id: number;
@@ -104,14 +106,18 @@ export default function ProductDetailClient({
   variations,
   related = [],
   downloads = [],
+  isWeighingScale = false,
 }: {
   product: any;
   variations: any[];
   related?: RelatedProduct[];
   downloads?: ProductDownload[];
+  /** In the Weighing Scales category or one below it: shows the legal metrology certificate point. */
+  isWeighingScale?: boolean;
 }) {
   const [mainImg, setMainImg] = useState(0);
   const [selected, setSelected] = useState<Record<string, string>>({});
+  const [enquiryOpen, setEnquiryOpen] = useState(false);
 
   const name = decodeEntities(product.name);
   const sku: string | undefined = product.sku || undefined;
@@ -191,15 +197,28 @@ export default function ProductDetailClient({
     });
   }
 
-  /* enquiry */
-  const chosen = Object.values(selected);
-  const enquiryName = chosen.length ? `${name} (${chosen.join(", ")})` : name;
-  const enquiryMessage = `Hi, I would like to enquire about ${enquiryName}${sku ? ` – ${sku}` : ""}.`;
+  /* enquiry: the product, the options chosen and the price, sent to WhatsApp with the visitor's location */
+  const enquiryLines: EnquiryLine[] = [
+    { label: "Product", value: name },
+    ...(sku ? [{ label: "Model / SKU", value: sku }] : []),
+    ...(brand ? [{ label: "Brand", value: brand }] : []),
+    ...variationAttrs
+      .filter((a) => selected[a.name])
+      .map((a) => ({ label: decodeEntities(a.name), value: selected[a.name] })),
+    ...(displayPrice
+      ? [{ label: "Price", value: `${showFrom ? "From " : ""}${formatINR(displayPrice)} (Incl. GST)` }]
+      : []),
+  ];
+  const notChosen = variationAttrs.filter((a) => !selected[a.name]).map((a) => decodeEntities(a.name).toLowerCase());
+  const enquiryHint = notChosen.length
+    ? `You haven't chosen the ${notChosen.join(" and ")} yet. Pick it above, or tell us on WhatsApp.`
+    : undefined;
 
   /* assurances: keep site-wide promises, but never contradict the product's own warranty */
   const warrantyValue = warrantyAttr ? decodeEntities(warrantyAttr.options[0]) : "";
   const warrantyLabel = !warrantyAttr ? "1-Year Warranty" : /^no\b/i.test(warrantyValue) ? null : `${warrantyValue} warranty`;
   const assurances = [
+    ...(isWeighingScale ? [{ icon: BadgeCheck, label: "Legal Metrology Certificate Included" }] : []),
     { icon: Wrench, label: "Free Installation" },
     ...(warrantyLabel ? [{ icon: ShieldCheck, label: warrantyLabel }] : []),
     { icon: MapPin, label: "Kerala-wide Service" },
@@ -380,14 +399,20 @@ export default function ProductDetailClient({
 
             {/* CTAs */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-[1fr_auto] lg:grid-cols-1 xl:grid-cols-[1fr_auto] gap-3 whitespace-nowrap">
-              <a
-                href={whatsappLink(enquiryMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => setEnquiryOpen(true)}
+                aria-haspopup="dialog"
                 className={`inline-flex h-14 items-center justify-center gap-2.5 rounded-full bg-[#25D366] px-6 text-base font-bold text-white shadow-[0_10px_24px_-10px_rgba(37,211,102,0.7)] transition-colors hover:bg-[#1fb857] ${focusRing}`}
               >
                 <MessageCircle className="w-5 h-5" /> Enquire on WhatsApp
-              </a>
+              </button>
+              <WhatsAppEnquiryDialog
+                open={enquiryOpen}
+                onClose={() => setEnquiryOpen(false)}
+                lines={enquiryLines}
+                hint={enquiryHint}
+              />
               <a
                 href={`tel:${PHONE_NUMBER}`}
                 className={`inline-flex h-14 items-center justify-center gap-2 rounded-full border border-border bg-white px-6 text-base font-semibold text-foreground transition-colors hover:border-foreground/40 ${focusRing}`}
