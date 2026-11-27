@@ -1,9 +1,9 @@
 import type { CategoryNode } from "./category-data";
 
-// The fixed product catalogue: 8 main categories and their subcategories.
-// It is always shown, whatever WordPress returns. Live WordPress categories are merged
-// in on top (their names and slugs win when they match), and any extra live
-// categories are added after these.
+// The fixed product catalogue: the 8 main categories and their subcategories from the
+// catalogue sheet, in its order. It is always shown, whatever WordPress returns. Live
+// WordPress categories are merged in on top (their names and slugs win when they match),
+// and any category added in WordPress that isn't listed here is shown after these.
 //
 // `slugs` lists the WordPress slug first, then known alternative spellings, so a category
 // that was renamed or recreated in WordPress still matches.
@@ -14,20 +14,17 @@ const node = (title: string, ...slugs: string[]): FallbackNode => ({ title, slug
 
 const CATALOGUE: FallbackNode[] = [
   {
-    title: "Weighing Scale",
+    title: "Weighing",
     slugs: ["weighing-scale", "weighing"],
     children: [
       node("Retail Scales", "retail-scales"),
-      node("Platform Scales", "platform-scales"),
       node("Portable Scales", "portable-scales"),
-      node("Price Computing Scales", "price-computing-scales"),
-      node("Personal/Kitchen", "personal-weighing", "personnel-kitchen", "personal-kitchen"),
+      node("Platform Scales", "platform-scales"),
       node("Hanging Scales", "hanging-scales"),
-      node("Jewellery Scales", "jewellary-scale", "jewellery-scale", "jewellery-scales"),
-      node("Lab/Analytical Scales", "lab-amalytical-scales", "lab-analytical-scales"),
-      node("Hospital Scales", "hospital-scales"),
+      node("Jewellery Scale", "jewellary-scale", "jewellery-scale", "jewellery-scales"),
+      node("Personal Weighing", "personal-weighing", "personnel-kitchen", "personal-kitchen"),
+      node("Lab & Analytical Scales", "lab-amalytical-scales", "lab-analytical-scales"),
       node("Industrial Scales", "industrial-scales"),
-      node("Crane Scale", "crane-scale", "crane-scales"),
     ],
   },
   {

@@ -7,7 +7,7 @@ import SectionHeader from "./SectionHeader";
 
 const industries = [
   { name: "Supermarkets & retail", text: "Price-computing scales, billing counters, barcode and label printers", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200" },
-  { name: "Healthcare & labs", text: "Hospital scales and analytical balances with calibration certificates", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1200" },
+  { name: "Healthcare & labs", text: "Personal scales and analytical balances with calibration certificates", image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1200" },
   { name: "Manufacturing", text: "Platform and counting scales, sealing and filling machines", image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1200" },
   { name: "Logistics & warehousing", text: "Floor and pallet scales, label printers and scanners for dispatch", image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200" },
   { name: "Food processing", text: "Band sealers, filling machines and printing scales for packed food", image: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?q=80&w=1200" },

@@ -26,8 +26,8 @@ const industries = [
     image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1400",
     desc: "Precision instruments for hospitals, clinics, and diagnostic laboratories.",
     challenges: ["Dosage accuracy", "Equipment compliance", "Regulatory requirements"],
-    solutions: ["Hospital & personal scales", "Analytical laboratory balances", "OIML-certified instruments"],
-    href: "/products?cat=weighing-scale&sub=hospital-scales",
+    solutions: ["Personal weighing scales", "Analytical laboratory balances", "OIML-certified instruments"],
+    href: "/products?cat=weighing&sub=lab-analytical-scales",
   },
   {
     name: "Manufacturing",
@@ -42,7 +42,7 @@ const industries = [
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1400",
     desc: "Speed up operations with integrated weighing, barcode, and label printing systems.",
     challenges: ["Shipping weight accuracy", "Inventory management", "Label compliance"],
-    solutions: ["Platform & crane scales", "Zebra label printers", "Honeywell barcode scanners"],
+    solutions: ["Platform & hanging scales", "Zebra label printers", "Honeywell barcode scanners"],
     href: "/products?cat=weighing-scale&sub=platform-scales",
   },
   {

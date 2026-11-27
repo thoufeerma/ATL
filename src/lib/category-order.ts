@@ -10,6 +10,17 @@
 
 type SlugEntry = string | string[];
 
+const WEIGHING_ORDER: SlugEntry[] = [
+  "retail-scales",
+  "portable-scales",
+  "platform-scales",
+  "hanging-scales",
+  ["jewellary-scale", "jewellery-scale", "jewellery-scales"],
+  ["personal-weighing", "personnel-kitchen", "personal-kitchen"],
+  ["lab-amalytical-scales", "lab-analytical-scales"],
+  "industrial-scales",
+];
+
 export const CATEGORY_ORDER: Record<string, SlugEntry[]> = {
   root: [
     "weighing-scale",
@@ -22,19 +33,9 @@ export const CATEGORY_ORDER: Record<string, SlugEntry[]> = {
     "other",
   ],
 
-  "weighing-scale": [
-    "retail-scales",
-    "platform-scales",
-    "portable-scales",
-    "price-computing-scales",
-    ["personal-weighing", "personnel-kitchen", "personal-kitchen"],
-    "hanging-scales",
-    ["jewellary-scale", "jewellery-scale", "jewellery-scales"],
-    ["lab-amalytical-scales", "lab-analytical-scales"],
-    "hospital-scales",
-    "industrial-scales",
-    ["crane-scale", "crane-scales"],
-  ],
+  "weighing-scale": WEIGHING_ORDER,
+  // WordPress now calls the Weighing category "weighing".
+  weighing: WEIGHING_ORDER,
 
   "billing-solutions": [
     ["keypad-billing-machines", "keypad-billing"],
